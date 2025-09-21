@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useActionState } from "react";
 import { useSearchParams } from "next/navigation";
-import { authenticate } from "@/app/lib/actions";
+import { authenticate, registerUser } from "@/app/lib/actions";
 
 export default function AuthForm() {
   const searchParams = useSearchParams();
@@ -11,9 +11,9 @@ export default function AuthForm() {
   // Initialize based on URL parameter, default to login
   const [isLogin, setIsLogin] = useState(true);
 
-  // Use server action for authentication
+  // Use different server actions based on mode
   const [errorMessage, formAction, isPending] = useActionState(
-    authenticate,
+    isLogin ? authenticate : registerUser,
     undefined
   );
 
@@ -76,32 +76,12 @@ export default function AuthForm() {
                 name="password"
                 type="password"
                 required
+                minLength={6}
                 className="mt-1 block w-full px-3 py-2 border border-slate-300 rounded-lg shadow-sm 
                          focus:outline-none focus:ring-emerald-500 focus:border-emerald-500"
                 placeholder="Enter your password"
               />
             </div>
-
-            {/* Confirm Password Field - Only show for signup */}
-            {!isLogin && (
-              <div>
-                <label
-                  htmlFor="confirmPassword"
-                  className="block text-sm font-medium text-slate-700"
-                >
-                  Confirm Password
-                </label>
-                <input
-                  id="confirmPassword"
-                  name="confirmPassword"
-                  type="password"
-                  required
-                  className="mt-1 block w-full px-3 py-2 border border-slate-300 rounded-lg shadow-sm 
-                           focus:outline-none focus:ring-emerald-500 focus:border-emerald-500"
-                  placeholder="Confirm your password"
-                />
-              </div>
-            )}
           </div>
 
           {/* Hidden field for redirect */}
@@ -119,7 +99,9 @@ export default function AuthForm() {
                      } focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500`}
           >
             {isPending
-              ? "Signing in..."
+              ? isLogin
+                ? "Signing in..."
+                : "Creating account..."
               : isLogin
               ? "Sign In"
               : "Create Account"}

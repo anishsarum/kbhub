@@ -1,0 +1,78 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../app/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String   // Will store bcrypt hashed passwords
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  documents Document[]
+
+  @@map("users")
+}
+
+model Document {
+  id          String      @id @default(cuid())
+  title       String
+  description String?
+  type        DocumentType
+  
+  // Content fields (polymorphic based on type)
+  content     String?     // For TEXT type: markdown content
+  filePath    String?     // For PDF type: file system path
+  fileName    String?     // For PDF type: original file name
+  fileSize    Int?        // For PDF type: file size in bytes
+  mimeType    String?     // For PDF type: file mime type
+  
+  // Metadata
+  tags        String[]    @default([])
+  isPrivate   Boolean     @default(false)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  
+  // Relations
+  userId      String
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  chunks      DocumentChunk[]
+
+  @@map("documents")
+}
+
+enum DocumentType {
+  TEXT  // Markdown/text notes
+  PDF   // PDF uploads
+}
+
+// Vector embeddings for semantic search
+model DocumentChunk {
+  id          String   @id @default(cuid())
+  content     String   // Text chunk for embedding (max ~8000 tokens)
+  embedding   Unsupported("vector(1536)")? // OpenAI text-embedding-3-small dimension
+  chunkIndex  Int      // Position within document (0, 1, 2...)
+  
+  // Metadata
+  wordCount   Int?     // For analytics
+  createdAt   DateTime @default(now())
+  
+  // Relations
+  documentId  String
+  document    Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+
+  @@map("document_chunks")
+}
