@@ -109,8 +109,24 @@ export async function createTextDocument(
 ) {
   try {
     const session = await auth();
-    if (!session?.user?.id) {
+    console.log("Session debug:", {
+      session,
+      userId: session?.user?.id,
+      email: session?.user?.email,
+    });
+
+    if (!session?.user?.email) {
       return "You must be logged in to create documents.";
+    }
+
+    // Get user ID from email since that's what we know works
+    const user = await prisma.user.findUnique({
+      where: { email: session.user.email },
+      select: { id: true },
+    });
+
+    if (!user) {
+      return "User not found.";
     }
 
     const title = formData.get("title") as string;
@@ -150,7 +166,7 @@ export async function createTextDocument(
         type: "TEXT",
         content,
         tags,
-        userId: session.user.id,
+        userId: user.id,
       },
     });
 
@@ -161,4 +177,75 @@ export async function createTextDocument(
   }
 
   redirect("/dashboard/library");
+}
+
+export async function getUserDocuments() {
+  const session = await auth();
+
+  if (!session?.user?.email) {
+    throw new Error("You must be logged in to view documents.");
+  }
+
+  const user = await prisma.user.findUnique({
+    where: { email: session.user.email },
+    include: {
+      documents: {
+        orderBy: { createdAt: "desc" },
+        select: {
+          id: true,
+          title: true,
+          content: true,
+          type: true,
+          createdAt: true,
+          tags: true,
+        },
+      },
+    },
+  });
+
+  if (!user) {
+    throw new Error("User not found");
+  }
+
+  return user.documents;
+}
+
+export async function getDocumentById(id: string) {
+  const session = await auth();
+
+  if (!session?.user?.email) {
+    throw new Error("You must be logged in to view documents.");
+  }
+
+  const user = await prisma.user.findUnique({
+    where: { email: session.user.email },
+    select: { id: true },
+  });
+
+  if (!user) {
+    throw new Error("User not found");
+  }
+
+  const document = await prisma.document.findFirst({
+    where: {
+      id: id,
+      userId: user.id, // Ensure user can only access their own documents
+    },
+    select: {
+      id: true,
+      title: true,
+      description: true,
+      content: true,
+      type: true,
+      createdAt: true,
+      updatedAt: true,
+      tags: true,
+    },
+  });
+
+  if (!document) {
+    throw new Error("Document not found");
+  }
+
+  return document;
 }
