@@ -116,3 +116,40 @@ export function DocumentDetailSkeleton() {
     </div>
   );
 }
+
+export function EditDocumentSkeleton() {
+  return (
+    <div className="space-y-6">
+      {/* Header Skeleton */}
+      <div>
+        <div className="h-8 w-48 bg-gray-200 rounded mb-2"></div>
+        <div className="h-4 w-64 bg-gray-200 rounded"></div>
+      </div>
+
+      {/* Form Skeleton */}
+      <div
+        className={`${shimmer} relative overflow-hidden bg-white rounded-lg shadow-sm border border-slate-200 p-6`}
+      >
+        <div className="h-6 w-40 bg-gray-200 rounded mb-6"></div>
+        <div className="space-y-6">
+          <div>
+            <div className="h-4 w-16 bg-gray-200 rounded mb-2"></div>
+            <div className="h-10 w-full bg-gray-200 rounded"></div>
+          </div>
+          <div>
+            <div className="h-4 w-20 bg-gray-200 rounded mb-2"></div>
+            <div className="h-40 w-full bg-gray-200 rounded"></div>
+          </div>
+          <div>
+            <div className="h-4 w-12 bg-gray-200 rounded mb-2"></div>
+            <div className="h-10 w-full bg-gray-200 rounded"></div>
+          </div>
+          <div className="flex justify-end space-x-3 mt-6">
+            <div className="h-10 w-16 bg-gray-200 rounded"></div>
+            <div className="h-10 w-32 bg-gray-200 rounded"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

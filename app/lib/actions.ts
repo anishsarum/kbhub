@@ -249,3 +249,121 @@ export async function getDocumentById(id: string) {
 
   return document;
 }
+
+export async function updateTextDocument(
+  id: string,
+  prevState: string | undefined,
+  formData: FormData
+) {
+  try {
+    const session = await auth();
+
+    if (!session?.user?.email) {
+      return "You must be logged in to update documents.";
+    }
+
+    // Get user ID from email
+    const user = await prisma.user.findUnique({
+      where: { email: session.user.email },
+      select: { id: true },
+    });
+
+    if (!user) {
+      return "User not found.";
+    }
+
+    const title = formData.get("title") as string;
+    const content = formData.get("content") as string;
+    const tagsInput = formData.get("tags") as string;
+
+    // Parse tags from comma-separated string
+    const tags = tagsInput
+      ? tagsInput
+          .split(",")
+          .map((tag) => tag.trim())
+          .filter(Boolean)
+      : [];
+
+    // Auto-generate description from first 100 characters of content
+    const description =
+      content.length > 100
+        ? content.substring(0, 100).trim() + "..."
+        : content.trim();
+
+    // Validate input
+    const validatedFields = CreateTextDocumentSchema.safeParse({
+      title,
+      content,
+      tags: tagsInput,
+    });
+
+    if (!validatedFields.success) {
+      return "Please check your input and try again.";
+    }
+
+    // Update document (ensure user can only update their own documents)
+    const updatedDocument = await prisma.document.updateMany({
+      where: {
+        id: id,
+        userId: user.id, // Security: only update user's own documents
+      },
+      data: {
+        title,
+        description,
+        content,
+        tags,
+        updatedAt: new Date(),
+      },
+    });
+
+    if (updatedDocument.count === 0) {
+      return "Document not found or you don't have permission to edit it.";
+    }
+
+    revalidatePath("/dashboard/library");
+    revalidatePath(`/dashboard/library/${id}`);
+  } catch (error) {
+    console.error("Document update error:", error);
+    return "Something went wrong updating the document.";
+  }
+
+  redirect(`/dashboard/library/${id}`);
+}
+
+export async function deleteDocument(id: string) {
+  try {
+    // Get the current user
+    const session = await auth();
+    if (!session?.user?.email) {
+      return "Not authenticated";
+    }
+
+    // Get user from database
+    const user = await prisma.user.findUnique({
+      where: { email: session.user.email },
+    });
+
+    if (!user) {
+      return "User not found";
+    }
+
+    // Delete document (ensure user can only delete their own documents)
+    const deletedDocument = await prisma.document.deleteMany({
+      where: {
+        id: id,
+        userId: user.id, // Security: only delete user's own documents
+      },
+    });
+
+    if (deletedDocument.count === 0) {
+      return "Document not found or you don't have permission to delete it.";
+    }
+
+    revalidatePath("/dashboard/library");
+  } catch (error) {
+    console.error("Document deletion error:", error);
+    return "Something went wrong deleting the document.";
+  }
+
+  redirect("/dashboard/library");
+}
