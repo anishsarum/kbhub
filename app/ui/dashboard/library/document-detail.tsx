@@ -8,7 +8,7 @@ import {
 } from "@heroicons/react/24/outline";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { DeleteDocumentButton } from "./delete-document-button";
+import { DeleteDocumentButton } from "@/app/ui/dashboard/documents/delete-document-button";
 import Breadcrumbs from "@/app/ui/shared/breadcrumbs";
 
 const formatDate = (date: Date) => {

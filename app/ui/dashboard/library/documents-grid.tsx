@@ -40,35 +40,39 @@ const filterDocuments = (documents: Document[], query: string): Document[] => {
 
   const searchTerm = query.toLowerCase().trim();
 
-  // Check if this is a tag-specific search (starts with @)
-  if (searchTerm.startsWith("@")) {
-    const tagQuery = searchTerm.slice(1); // Remove the @ symbol
-    if (!tagQuery) return documents; // If just "@", show all documents
+  // Extract all @tag mentions from the query
+  const tagMatches = searchTerm.match(/@\w+/g) || [];
+  const tagQueries = tagMatches.map((tag) => tag.slice(1)); // Remove @ symbols
 
-    return documents.filter((doc) => {
-      // Search only in tags when using @
-      return doc.tags.some((tag) => tag.toLowerCase().includes(tagQuery));
-    });
-  }
+  // Get the remaining text after removing @tag mentions
+  const textQuery = searchTerm.replace(/@\w+/g, "").trim();
 
-  // General search across all fields
   return documents.filter((doc) => {
-    // Search in title
-    const titleMatch = doc.title.toLowerCase().includes(searchTerm);
+    let matches = true;
 
-    // Search in content
-    const contentMatch =
-      doc.content?.toLowerCase().includes(searchTerm) ?? false;
+    // If we have tag queries, all must match
+    if (tagQueries.length > 0) {
+      const tagMatches = tagQueries.every((tagQuery) =>
+        doc.tags.some((tag) => tag.toLowerCase().includes(tagQuery))
+      );
+      matches = matches && tagMatches;
+    }
 
-    // Search in tags
-    const tagMatch = doc.tags.some((tag) =>
-      tag.toLowerCase().includes(searchTerm)
-    );
+    // If we have text query, search in all fields
+    if (textQuery) {
+      const titleMatch = doc.title.toLowerCase().includes(textQuery);
+      const contentMatch =
+        doc.content?.toLowerCase().includes(textQuery) ?? false;
+      const tagMatch = doc.tags.some((tag) =>
+        tag.toLowerCase().includes(textQuery)
+      );
+      const typeMatch = doc.type.toLowerCase().includes(textQuery);
 
-    // Search in type
-    const typeMatch = doc.type.toLowerCase().includes(searchTerm);
+      const textMatches = titleMatch || contentMatch || tagMatch || typeMatch;
+      matches = matches && textMatches;
+    }
 
-    return titleMatch || contentMatch || tagMatch || typeMatch;
+    return matches;
   });
 };
 
@@ -117,9 +121,9 @@ export function DocumentsGrid({ documents, searchQuery }: DocumentsGridProps) {
           <p className="text-sm text-slate-600">
             Found {filteredDocuments.length} document
             {filteredDocuments.length !== 1 ? "s" : ""}
-            {searchQuery.startsWith("@")
-              ? ` with tag matching "${searchQuery.slice(1)}"`
-              : ` matching "${searchQuery}"`}
+            {' matching "'}
+            {searchQuery}
+            {'"'}
           </p>
         </div>
       )}

@@ -1,4 +1,4 @@
-import { DashboardContent } from "@/app/ui/dashboard/dashboard-content";
+import { DashboardContent } from "@/app/ui/dashboard/shared/dashboard-content";
 
 export default function DashboardPage() {
   return (

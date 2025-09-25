@@ -1,5 +1,5 @@
-import { SearchForm } from "@/app/ui/dashboard/search-form";
-import { SearchResults } from "@/app/ui/dashboard/search-results";
+import { SearchForm } from "@/app/ui/dashboard/shared/search-form";
+import { SearchResults } from "@/app/ui/dashboard/search/search-results";
 import { SearchResultsSkeleton } from "@/app/ui/skeletons";
 import Breadcrumbs from "@/app/ui/shared/breadcrumbs";
 import { Suspense } from "react";

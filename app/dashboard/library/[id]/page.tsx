@@ -1,5 +1,5 @@
 import { DocumentDetailSkeleton } from "@/app/ui/skeletons";
-import { DocumentDetail } from "@/app/ui/dashboard/document-detail";
+import { DocumentDetail } from "@/app/ui/dashboard/library/document-detail";
 import { Suspense } from "react";
 
 type DocumentDetailPageProps = {

@@ -3,8 +3,8 @@
 import { useState, useCallback, useEffect } from "react";
 import { LibraryPageSkeleton } from "@/app/ui/skeletons";
 import { getUserDocuments } from "@/app/lib/actions";
-import { SearchForm } from "@/app/ui/dashboard/search-form";
-import { DocumentsGrid } from "@/app/ui/dashboard/documents-grid";
+import { SearchForm } from "@/app/ui/dashboard/shared/search-form";
+import { DocumentsGrid } from "@/app/ui/dashboard/library/documents-grid";
 import Breadcrumbs from "@/app/ui/shared/breadcrumbs";
 
 type Document = {

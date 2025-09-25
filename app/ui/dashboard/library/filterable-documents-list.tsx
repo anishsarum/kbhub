@@ -8,7 +8,7 @@ import {
   MagnifyingGlassIcon,
 } from "@heroicons/react/24/outline";
 import Link from "next/link";
-import { SearchForm } from "./search-form";
+import { SearchForm } from "@/app/ui/dashboard/shared/search-form";
 
 type Document = {
   id: string;

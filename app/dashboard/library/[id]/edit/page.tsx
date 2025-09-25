@@ -1,5 +1,5 @@
 import { EditDocumentSkeleton } from "@/app/ui/skeletons";
-import { EditDocumentContent } from "@/app/ui/dashboard/edit-document-content";
+import { EditDocumentContent } from "@/app/ui/dashboard/documents/edit-document-content";
 import { Suspense } from "react";
 
 type EditDocumentPageProps = {

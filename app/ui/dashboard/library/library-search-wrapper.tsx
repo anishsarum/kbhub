@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import { SearchForm } from "./search-form";
+import { SearchForm } from "@/app/ui/dashboard/shared/search-form";
 
 type LibrarySearchWrapperProps = {
   children: React.ReactNode;

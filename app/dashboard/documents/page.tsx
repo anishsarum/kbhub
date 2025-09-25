@@ -1,4 +1,4 @@
-import { DocumentCreationTabs } from "@/app/ui/dashboard/document-creation-tabs";
+import { DocumentCreationTabs } from "@/app/ui/dashboard/documents/document-creation-tabs";
 import Breadcrumbs from "@/app/ui/shared/breadcrumbs";
 
 export default function DocumentsPage() {

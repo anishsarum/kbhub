@@ -450,8 +450,8 @@ export async function semanticSearch(query: string) {
     const results = await searchSimilarChunks(
       queryEmbedding,
       user.id,
-      10, // limit to 10 results
-      0.3 // similarity threshold (0.3 = 30% similar - more permissive)
+      15, // limit to 15 results for better demonstration
+      0.1 // similarity threshold (0.1 = 10% similar - very permissive for demo)
     );
 
     console.log(`Search for "${query}" returned ${results.length} results`);
