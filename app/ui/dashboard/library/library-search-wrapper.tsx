@@ -1,6 +1,5 @@
 "use client";
 
-import { useState, useCallback } from "react";
 import { SearchForm } from "@/app/ui/dashboard/shared/search-form";
 
 type LibrarySearchWrapperProps = {

@@ -1,4 +1,6 @@
-import { LibraryContent } from "@/app/ui/dashboard/library/library-content";
+import { LibraryResults } from "@/app/ui/dashboard/library/library-results";
+import { SearchForm } from "@/app/ui/dashboard/shared/search-form";
+import { LibraryPageSkeleton } from "@/app/ui/skeletons";
 import Breadcrumbs from "@/app/ui/shared/breadcrumbs";
 import { Suspense } from "react";
 
@@ -27,7 +29,18 @@ export default async function LibraryPage({ searchParams }: LibraryPageProps) {
         </p>
       </div>
 
-      <LibraryContent initialQuery={query} />
+      {/* Search form - will need to be enhanced to get available tags */}
+      <SearchForm
+        mode="local"
+        showButton={false}
+        updateUrl={true}
+        availableTags={[]} // TODO: Get tags from server component
+        initialQuery={query}
+      />
+
+      <Suspense fallback={<LibraryPageSkeleton />}>
+        <LibraryResults searchQuery={query} />
+      </Suspense>
     </div>
   );
 }
