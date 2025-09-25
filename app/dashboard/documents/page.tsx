@@ -1,8 +1,15 @@
 import { DocumentCreationTabs } from "@/app/ui/dashboard/document-creation-tabs";
+import Breadcrumbs from "@/app/ui/shared/breadcrumbs";
 
 export default function DocumentsPage() {
   return (
     <div className="space-y-6">
+      <Breadcrumbs
+        breadcrumbs={[
+          { label: "Dashboard", href: "/dashboard" },
+          { label: "Documents", href: "/dashboard/documents", active: true },
+        ]}
+      />
       {/* Header */}
       <div>
         <h1 className="text-3xl font-bold text-slate-900">Create Documents</h1>

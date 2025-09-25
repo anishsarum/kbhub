@@ -8,6 +8,12 @@ import { prisma } from "./db";
 import { z } from "zod";
 import { auth } from "@/auth";
 import { revalidatePath } from "next/cache";
+import { generateEmbedding, chunkText } from "./embeddings";
+import {
+  createDocumentChunk,
+  deleteDocumentChunks,
+  searchSimilarChunks,
+} from "./vector-db";
 
 const RegisterSchema = z.object({
   email: z.email("Please enter a valid email address"),
@@ -159,7 +165,7 @@ export async function createTextDocument(
     }
 
     // Create text document
-    await prisma.document.create({
+    const document = await prisma.document.create({
       data: {
         title,
         description,
@@ -169,6 +175,28 @@ export async function createTextDocument(
         userId: user.id,
       },
     });
+
+    // Generate embeddings for the document content
+    try {
+      const chunks = chunkText(content);
+
+      // Create document chunks with embeddings
+      for (let i = 0; i < chunks.length; i++) {
+        const chunk = chunks[i];
+        const embedding = await generateEmbedding(chunk);
+
+        await createDocumentChunk(
+          document.id,
+          chunk,
+          embedding,
+          i,
+          chunk.split(/\s+/).length
+        );
+      }
+    } catch (embeddingError) {
+      console.error("Error generating embeddings:", embeddingError);
+      // Continue without embeddings - the document was still created successfully
+    }
 
     revalidatePath("/dashboard/library");
   } catch (error) {
@@ -320,6 +348,31 @@ export async function updateTextDocument(
       return "Document not found or you don't have permission to edit it.";
     }
 
+    // Regenerate embeddings for the updated content
+    try {
+      // Delete existing chunks
+      await deleteDocumentChunks(id);
+
+      // Generate new chunks and embeddings
+      const chunks = chunkText(content);
+
+      for (let i = 0; i < chunks.length; i++) {
+        const chunk = chunks[i];
+        const embedding = await generateEmbedding(chunk);
+
+        await createDocumentChunk(
+          id,
+          chunk,
+          embedding,
+          i,
+          chunk.split(/\s+/).length
+        );
+      }
+    } catch (embeddingError) {
+      console.error("Error regenerating embeddings:", embeddingError);
+      // Continue without embeddings - the document update was still successful
+    }
+
     revalidatePath("/dashboard/library");
     revalidatePath(`/dashboard/library/${id}`);
   } catch (error) {
@@ -366,4 +419,55 @@ export async function deleteDocument(id: string) {
   }
 
   redirect("/dashboard/library");
+}
+
+// Semantic Search Actions
+export async function semanticSearch(query: string) {
+  try {
+    const session = await auth();
+    if (!session?.user?.email) {
+      throw new Error("You must be logged in to search documents.");
+    }
+
+    // Get user from database
+    const user = await prisma.user.findUnique({
+      where: { email: session.user.email },
+      select: { id: true },
+    });
+
+    if (!user) {
+      throw new Error("User not found");
+    }
+
+    if (!query.trim()) {
+      return [];
+    }
+
+    // Generate embedding for the search query
+    const queryEmbedding = await generateEmbedding(query.trim());
+
+    // Search for similar document chunks
+    const results = await searchSimilarChunks(
+      queryEmbedding,
+      user.id,
+      10, // limit to 10 results
+      0.3 // similarity threshold (0.3 = 30% similar - more permissive)
+    );
+
+    console.log(`Search for "${query}" returned ${results.length} results`);
+    if (results.length > 0) {
+      console.log(
+        "Top result similarity scores:",
+        results.slice(0, 3).map((r) => ({
+          title: r.document_title,
+          similarity: r.similarity_score,
+        }))
+      );
+    }
+
+    return results;
+  } catch (error) {
+    console.error("Semantic search error:", error);
+    throw new Error("Failed to search documents");
+  }
 }
