@@ -54,7 +54,7 @@ export async function DocumentsList() {
 
     return (
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {documents.map((document) => (
+        {documents.map((document: Document) => (
           <Link
             key={document.id}
             href={`/dashboard/library/${document.id}`}
