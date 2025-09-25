@@ -58,6 +58,35 @@ export function LibraryPageSkeleton() {
 export function DocumentDetailSkeleton() {
   return (
     <div>
+      {/* Breadcrumb Skeleton */}
+      <nav className="flex mb-4" aria-label="Breadcrumb">
+        <ol className="flex items-center space-x-1">
+          <li>
+            <div className="h-4 w-20 bg-gray-200 rounded"></div>
+          </li>
+          <li>
+            <div className="h-4 w-1 bg-gray-200 rounded mx-2"></div>
+          </li>
+          <li>
+            <div className="h-4 w-16 bg-gray-200 rounded"></div>
+          </li>
+          <li>
+            <div className="h-4 w-1 bg-gray-200 rounded mx-2"></div>
+          </li>
+          <li>
+            <div className="h-4 w-32 bg-gray-200 rounded"></div>
+          </li>
+        </ol>
+      </nav>
+
+      {/* Back Navigation Skeleton */}
+      <div className="mb-6">
+        <div className="inline-flex items-center">
+          <div className="h-4 w-4 bg-gray-200 rounded mr-2"></div>
+          <div className="h-4 w-32 bg-gray-200 rounded"></div>
+        </div>
+      </div>
+
       {/* Document Header Skeleton */}
       <div
         className={`${shimmer} relative overflow-hidden bg-white rounded-lg shadow-md border border-gray-200 p-8 mb-6`}
@@ -120,10 +149,33 @@ export function DocumentDetailSkeleton() {
 export function EditDocumentSkeleton() {
   return (
     <div className="space-y-6">
-      {/* Header Skeleton */}
-      <div>
-        <div className="h-8 w-48 bg-gray-200 rounded mb-2"></div>
-        <div className="h-4 w-64 bg-gray-200 rounded"></div>
+      {/* Breadcrumb Skeleton */}
+      <nav className="flex mb-4" aria-label="Breadcrumb">
+        <ol className="flex items-center space-x-1">
+          <li>
+            <div className="h-4 w-20 bg-gray-200 rounded"></div>
+          </li>
+          <li>
+            <div className="h-4 w-1 bg-gray-200 rounded mx-2"></div>
+          </li>
+          <li>
+            <div className="h-4 w-16 bg-gray-200 rounded"></div>
+          </li>
+          <li>
+            <div className="h-4 w-1 bg-gray-200 rounded mx-2"></div>
+          </li>
+          <li>
+            <div className="h-4 w-32 bg-gray-200 rounded"></div>
+          </li>
+        </ol>
+      </nav>
+
+      {/* Back Navigation Skeleton */}
+      <div className="mb-6">
+        <div className="inline-flex items-center">
+          <div className="h-4 w-4 bg-gray-200 rounded mr-2"></div>
+          <div className="h-4 w-32 bg-gray-200 rounded"></div>
+        </div>
       </div>
 
       {/* Form Skeleton */}

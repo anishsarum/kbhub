@@ -4,10 +4,12 @@ import {
   CalendarIcon,
   TagIcon,
   PencilIcon,
+  ArrowLeftIcon,
 } from "@heroicons/react/24/outline";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { DeleteDocumentButton } from "./delete-document-button";
+import Breadcrumbs from "@/app/ui/shared/breadcrumbs";
 
 const formatDate = (date: Date) => {
   return new Intl.DateTimeFormat("en-US", {
@@ -33,7 +35,30 @@ export async function DocumentDetail({ id }: DocumentDetailProps) {
   }
 
   return (
-    <>
+    <div>
+      <Breadcrumbs
+        breadcrumbs={[
+          { label: "Dashboard", href: "/dashboard" },
+          { label: "Library", href: "/dashboard/library" },
+          {
+            label: document.title,
+            href: `/dashboard/library/${id}`,
+            active: true,
+          },
+        ]}
+      />
+
+      {/* Back to Library */}
+      <div className="mb-6">
+        <Link
+          href="/dashboard/library"
+          className="inline-flex items-center text-emerald-600 hover:text-emerald-800 transition-colors"
+        >
+          <ArrowLeftIcon className="h-4 w-4 mr-2" />
+          Back to Library
+        </Link>
+      </div>
+
       {/* Document Header */}
       <div className="bg-white rounded-lg shadow-md border border-gray-200 p-8 mb-6">
         <div className="flex items-start justify-between mb-6">
@@ -106,6 +131,6 @@ export async function DocumentDetail({ id }: DocumentDetailProps) {
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 }
