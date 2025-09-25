@@ -5,11 +5,13 @@ import Breadcrumbs from "@/app/ui/shared/breadcrumbs";
 import { Suspense } from "react";
 
 type SearchPageProps = {
-  searchParams: { [key: string]: string | string[] | undefined };
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 };
 
-export default function SearchPage({ searchParams }: SearchPageProps) {
-  const query = typeof searchParams?.q === "string" ? searchParams.q : "";
+export default async function SearchPage({ searchParams }: SearchPageProps) {
+  const resolvedSearchParams = await searchParams;
+  const query =
+    typeof resolvedSearchParams?.q === "string" ? resolvedSearchParams.q : "";
 
   return (
     <div>
