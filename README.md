@@ -1,4 +1,4 @@
-# Knowledge Base - Full-Stack Next.js Application
+# KBHub - Full-Stack Next.js Application
 
 A knowledge management system built with Next.js 15, React 19, and TypeScript. Features AI-powered semantic search using OpenAI embeddings and PostgreSQL vector extensions.
 
@@ -73,7 +73,9 @@ A knowledge management system built with Next.js 15, React 19, and TypeScript. F
 │   │   └── search/           # AI-powered search
 │   ├── lib/                  # Business logic
 │   │   ├── actions.ts        # Server actions
+│   │   ├── definitions.ts    # Shared type definitions
 │   │   ├── embeddings.ts     # OpenAI integration
+│   │   ├── utils.ts          # Shared utility functions
 │   │   └── vector-db.ts      # Vector operations
 │   └── ui/                   # Reusable components
 ├── prisma/                   # Database schema & migrations
@@ -157,4 +159,4 @@ Ensure production PostgreSQL database includes pgvector extension.
 
 ---
 
-**Knowledge Base Application** - Document management with AI-powered search
+**KBHub** - Document management with AI-powered search
