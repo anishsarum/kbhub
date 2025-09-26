@@ -126,10 +126,13 @@ export function SearchForm({
 
   // For local search mode, use debounced effect
   useEffect(() => {
-    if (mode === "local" && onSearch) {
+    if (mode === "local") {
       const timer = setTimeout(() => {
-        onSearch(query);
-        // Also update URL if enabled
+        // Call onSearch callback if provided
+        if (onSearch) {
+          onSearch(query);
+        }
+        // Update URL if enabled (independent of onSearch)
         if (updateUrl) {
           debouncedUrlUpdate(query);
         }

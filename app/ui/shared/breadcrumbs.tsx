@@ -1,12 +1,7 @@
-import { clsx } from "clsx";
 import Link from "next/link";
+import { clsx } from "clsx";
 import { ChevronRightIcon } from "@heroicons/react/24/outline";
-
-interface Breadcrumb {
-  label: string;
-  href: string;
-  active?: boolean;
-}
+import { Breadcrumb } from "@/app/lib/definitions";
 
 export default function Breadcrumbs({
   breadcrumbs,

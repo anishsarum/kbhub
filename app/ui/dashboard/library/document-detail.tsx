@@ -1,4 +1,5 @@
-import { getDocumentById } from "@/app/lib/actions";
+import Link from "next/link";
+import { notFound } from "next/navigation";
 import {
   DocumentIcon,
   CalendarIcon,
@@ -6,20 +7,10 @@ import {
   PencilIcon,
   ArrowLeftIcon,
 } from "@heroicons/react/24/outline";
-import Link from "next/link";
-import { notFound } from "next/navigation";
+import { getDocumentById } from "@/app/lib/actions";
 import { DeleteDocumentButton } from "@/app/ui/dashboard/documents/delete-document-button";
 import Breadcrumbs from "@/app/ui/shared/breadcrumbs";
-
-const formatDate = (date: Date) => {
-  return new Intl.DateTimeFormat("en-US", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  }).format(new Date(date));
-};
+import { formatDateTime } from "@/app/lib/utils";
 
 interface DocumentDetailProps {
   id: string;
@@ -95,13 +86,13 @@ export async function DocumentDetail({ id }: DocumentDetailProps) {
         <div className="flex flex-wrap items-center gap-6 text-sm text-gray-500 mb-6">
           <div className="flex items-center">
             <CalendarIcon className="h-4 w-4 mr-1" />
-            Created: {formatDate(document.createdAt)}
+            Created: {formatDateTime(document.createdAt)}
           </div>
           {document.updatedAt &&
             document.updatedAt.getTime() !== document.createdAt.getTime() && (
               <div className="flex items-center">
                 <CalendarIcon className="h-4 w-4 mr-1" />
-                Updated: {formatDate(document.updatedAt)}
+                Updated: {formatDateTime(document.updatedAt)}
               </div>
             )}
         </div>

@@ -1,38 +1,18 @@
 "use client";
 
+import Link from "next/link";
 import {
   DocumentIcon,
   CalendarIcon,
   TagIcon,
   MagnifyingGlassIcon,
 } from "@heroicons/react/24/outline";
-import Link from "next/link";
-
-type Document = {
-  id: string;
-  title: string;
-  content: string | null;
-  type: string;
-  createdAt: Date;
-  tags: string[];
-};
+import { Document } from "@/app/lib/definitions";
+import { formatDate, truncateContent } from "@/app/lib/utils";
 
 type DocumentsGridProps = {
   documents: Document[];
   searchQuery: string;
-};
-
-const formatDate = (date: Date) => {
-  return new Intl.DateTimeFormat("en-US", {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-  }).format(new Date(date));
-};
-
-const truncateContent = (content: string, maxLength = 150) => {
-  if (content.length <= maxLength) return content;
-  return content.substring(0, maxLength).trim() + "...";
 };
 
 const filterDocuments = (documents: Document[], query: string): Document[] => {

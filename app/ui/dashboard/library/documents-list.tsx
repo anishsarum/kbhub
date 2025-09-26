@@ -1,32 +1,12 @@
-import { getUserDocuments } from "@/app/lib/actions";
+import Link from "next/link";
 import {
   DocumentIcon,
   CalendarIcon,
   TagIcon,
 } from "@heroicons/react/24/outline";
-import Link from "next/link";
-
-type Document = {
-  id: string;
-  title: string;
-  content: string | null;
-  type: string;
-  createdAt: Date;
-  tags: string[];
-};
-
-const formatDate = (date: Date) => {
-  return new Intl.DateTimeFormat("en-US", {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-  }).format(new Date(date));
-};
-
-const truncateContent = (content: string, maxLength = 150) => {
-  if (content.length <= maxLength) return content;
-  return content.substring(0, maxLength).trim() + "...";
-};
+import { getUserDocuments } from "@/app/lib/actions";
+import { Document } from "@/app/lib/definitions";
+import { formatDate, truncateContent } from "@/app/lib/utils";
 
 export async function DocumentsList() {
   try {

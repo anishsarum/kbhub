@@ -1,8 +1,8 @@
 import Link from "next/link";
-import NavLinks from "@/app/ui/dashboard/shared/nav-links";
-import KBHubLogo from "@/app/ui/shared/kbhub-logo";
 import { PowerIcon } from "@heroicons/react/24/outline";
 import { signOut } from "@/auth";
+import NavLinks from "@/app/ui/dashboard/shared/nav-links";
+import KBHubLogo from "@/app/ui/shared/kbhub-logo";
 
 export default function SideNav() {
   return (

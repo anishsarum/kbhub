@@ -1,13 +1,12 @@
 "use server";
 
-import { signIn } from "@/auth";
-import { AuthError } from "next-auth";
 import { redirect } from "next/navigation";
-import bcrypt from "bcrypt";
-import { prisma } from "./db";
-import { z } from "zod";
-import { auth } from "@/auth";
 import { revalidatePath } from "next/cache";
+import { AuthError } from "next-auth";
+import bcrypt from "bcrypt";
+import { z } from "zod";
+import { auth, signIn } from "@/auth";
+import { prisma } from "./db";
 import { generateEmbedding, chunkText } from "./embeddings";
 import {
   createDocumentChunk,
@@ -236,6 +235,35 @@ export async function getUserDocuments() {
   }
 
   return user.documents;
+}
+
+export async function getUserTags() {
+  const session = await auth();
+
+  if (!session?.user?.email) {
+    throw new Error("You must be logged in to view tags.");
+  }
+
+  const user = await prisma.user.findUnique({
+    where: { email: session.user.email },
+    include: {
+      documents: {
+        select: {
+          tags: true,
+        },
+      },
+    },
+  });
+
+  if (!user) {
+    throw new Error("User not found");
+  }
+
+  // Extract all unique tags from all documents
+  const allTags = user.documents.flatMap((doc) => doc.tags);
+  const uniqueTags = [...new Set(allTags)].sort();
+
+  return uniqueTags;
 }
 
 export async function getDocumentById(id: string) {

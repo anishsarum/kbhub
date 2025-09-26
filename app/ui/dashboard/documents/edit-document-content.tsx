@@ -1,9 +1,9 @@
-import { getDocumentById } from "@/app/lib/actions";
+import Link from "next/link";
 import { notFound } from "next/navigation";
+import { ArrowLeftIcon } from "@heroicons/react/24/outline";
+import { getDocumentById } from "@/app/lib/actions";
 import { EditDocumentForm } from "./edit-document-form";
 import Breadcrumbs from "@/app/ui/shared/breadcrumbs";
-import { ArrowLeftIcon } from "@heroicons/react/24/outline";
-import Link from "next/link";
 
 interface EditDocumentContentProps {
   id: string;

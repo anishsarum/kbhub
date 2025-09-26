@@ -2,6 +2,7 @@ import { LibraryResults } from "@/app/ui/dashboard/library/library-results";
 import { SearchForm } from "@/app/ui/dashboard/shared/search-form";
 import { LibraryPageSkeleton } from "@/app/ui/skeletons";
 import Breadcrumbs from "@/app/ui/shared/breadcrumbs";
+import { getUserTags } from "@/app/lib/actions";
 import { Suspense } from "react";
 
 type LibraryPageProps = {
@@ -12,6 +13,9 @@ export default async function LibraryPage({ searchParams }: LibraryPageProps) {
   const resolvedSearchParams = await searchParams;
   const query =
     typeof resolvedSearchParams?.q === "string" ? resolvedSearchParams.q : "";
+
+  // Get available tags for autocomplete
+  const availableTags = await getUserTags();
 
   return (
     <div>
@@ -29,12 +33,11 @@ export default async function LibraryPage({ searchParams }: LibraryPageProps) {
         </p>
       </div>
 
-      {/* Search form - will need to be enhanced to get available tags */}
       <SearchForm
         mode="local"
         showButton={false}
         updateUrl={true}
-        availableTags={[]} // TODO: Get tags from server component
+        availableTags={availableTags}
         initialQuery={query}
       />
 
