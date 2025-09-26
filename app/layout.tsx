@@ -14,8 +14,8 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    template: "%s | Knowledge Base Hub",
-    default: "Knowledge Base Hub",
+    template: "%s | KBHub",
+    default: "KBHub",
   },
   description: "Organize, share, and discover knowledge with AI-powered search",
 };

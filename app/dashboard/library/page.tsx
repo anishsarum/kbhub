@@ -1,9 +1,14 @@
+import type { Metadata } from "next";
+import { Suspense } from "react";
 import { LibraryResults } from "@/app/ui/dashboard/library/library-results";
 import { SearchForm } from "@/app/ui/dashboard/shared/search-form";
 import { LibraryPageSkeleton } from "@/app/ui/skeletons";
 import Breadcrumbs from "@/app/ui/shared/breadcrumbs";
 import { getUserTags } from "@/app/lib/actions";
-import { Suspense } from "react";
+
+export const metadata: Metadata = {
+  title: "Library",
+};
 
 type LibraryPageProps = {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;

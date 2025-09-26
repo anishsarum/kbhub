@@ -1,5 +1,10 @@
+import type { Metadata } from "next";
 import { DocumentCreationTabs } from "@/app/ui/dashboard/documents/document-creation-tabs";
 import Breadcrumbs from "@/app/ui/shared/breadcrumbs";
+
+export const metadata: Metadata = {
+  title: "Create Documents",
+};
 
 export default function DocumentsPage() {
   return (

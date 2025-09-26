@@ -1,8 +1,13 @@
+import type { Metadata } from "next";
+import { Suspense } from "react";
 import { SearchForm } from "@/app/ui/dashboard/shared/search-form";
 import { SearchResults } from "@/app/ui/dashboard/search/search-results";
 import { SearchResultsSkeleton } from "@/app/ui/skeletons";
 import Breadcrumbs from "@/app/ui/shared/breadcrumbs";
-import { Suspense } from "react";
+
+export const metadata: Metadata = {
+  title: "AI Search",
+};
 
 type SearchPageProps = {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;

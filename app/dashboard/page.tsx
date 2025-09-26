@@ -1,4 +1,9 @@
+import type { Metadata } from "next";
 import { DashboardContent } from "@/app/ui/dashboard/shared/dashboard-content";
+
+export const metadata: Metadata = {
+  title: "Dashboard",
+};
 
 export default function DashboardPage() {
   return (
