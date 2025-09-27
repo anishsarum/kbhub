@@ -1,26 +1,39 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { useRouter, useSearchParams, usePathname } from "next/navigation";
+import { useRouter } from "next/navigation";
 import {
   MagnifyingGlassIcon,
   XMarkIcon,
   TagIcon,
 } from "@heroicons/react/24/outline";
-import { useDebouncedCallback } from "use-debounce";
+import { useTagAutocomplete } from "./hooks/useTagAutocomplete";
+import { useSearchURL } from "./hooks/useSearchURL";
+import { useDebouncedSearch } from "./hooks/useDebouncedSearch";
 
 type SearchMode = "semantic" | "local";
 
-type SearchFormProps = {
-  initialQuery?: string;
+type SearchConfig = {
   mode?: SearchMode;
-  onSearch?: (query: string) => void;
   placeholder?: string;
   description?: string;
   showButton?: boolean;
+};
+
+type URLConfig = {
   updateUrl?: boolean;
+};
+
+type TagConfig = {
   availableTags?: string[];
 };
+
+type SearchFormProps = SearchConfig &
+  URLConfig &
+  TagConfig & {
+    initialQuery?: string;
+    onSearch?: (query: string) => void;
+  };
 
 export function SearchForm({
   initialQuery = "",
@@ -32,229 +45,70 @@ export function SearchForm({
   updateUrl = false,
   availableTags = [],
 }: SearchFormProps) {
-  const searchParams = useSearchParams();
-  const pathname = usePathname();
   const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
 
+  // Custom hooks
+  const { getInitialQuery, updateURL } = useSearchURL(updateUrl);
+
   // Initialize query from URL if updateUrl is enabled, otherwise use initialQuery
   const [query, setQuery] = useState(() => {
-    if (updateUrl && searchParams.get("q")) {
-      return searchParams.get("q") || "";
-    }
-    return initialQuery;
+    return updateUrl ? getInitialQuery() || initialQuery : initialQuery;
   });
 
-  // State for tag autocomplete
-  const [showTagSuggestions, setShowTagSuggestions] = useState(false);
-  const [selectedSuggestionIndex, setSelectedSuggestionIndex] = useState(-1);
-  const [currentTagStart, setCurrentTagStart] = useState(-1);
-  const [currentTagEnd, setCurrentTagEnd] = useState(-1);
-
-  // Get current cursor position and find if we're typing a tag
-  const getCurrentTagInfo = () => {
-    const input = inputRef.current;
-    if (!input) return { isTypingTag: false, tagQuery: "", start: -1, end: -1 };
-
-    const cursorPos = input.selectionStart || 0;
-    const text = query;
-
-    // Find the last @ before or at cursor position
-    let tagStart = -1;
-    for (let i = cursorPos - 1; i >= 0; i--) {
-      if (text[i] === "@") {
-        tagStart = i;
-        break;
+  // Debounced search for local mode
+  useDebouncedSearch(
+    query,
+    (searchQuery) => {
+      if (onSearch) {
+        onSearch(searchQuery);
       }
-      if (text[i] === " ") {
-        break; // Stop at space, no tag being typed
-      }
-    }
+      updateURL(searchQuery);
+    },
+    mode === "local",
+    300
+  );
 
-    if (tagStart === -1)
-      return { isTypingTag: false, tagQuery: "", start: -1, end: -1 };
-
-    // Find the end of the tag (space or end of string)
-    let tagEnd = cursorPos;
-    for (let i = tagStart + 1; i < text.length; i++) {
-      if (text[i] === " ") {
-        tagEnd = i;
-        break;
-      }
-      if (i === text.length - 1) {
-        tagEnd = text.length;
-        break;
+  // Tag autocomplete functionality
+  const tagAutocomplete = useTagAutocomplete(
+    query,
+    availableTags,
+    inputRef,
+    (newQuery) => {
+      setQuery(newQuery);
+      if (mode === "local" && onSearch) {
+        onSearch(newQuery);
+        updateURL(newQuery);
       }
     }
-
-    const tagQuery = text.slice(tagStart + 1, tagEnd);
-    return {
-      isTypingTag: true,
-      tagQuery,
-      start: tagStart,
-      end: tagEnd,
-    };
-  };
-
-  // Get filtered tag suggestions based on current tag being typed
-  const getTagSuggestions = () => {
-    if (availableTags.length === 0) return [];
-
-    const tagInfo = getCurrentTagInfo();
-    if (!tagInfo.isTypingTag) return [];
-
-    const tagQuery = tagInfo.tagQuery.toLowerCase();
-    if (!tagQuery) return availableTags.slice(0, 10); // Show first 10 tags when just "@"
-
-    return availableTags
-      .filter((tag) => tag.toLowerCase().includes(tagQuery))
-      .slice(0, 10);
-  };
-
-  const tagSuggestions = getTagSuggestions(); // Debounced URL update function
-  const debouncedUrlUpdate = useDebouncedCallback((term: string) => {
-    if (!updateUrl) return;
-
-    const params = new URLSearchParams(searchParams);
-    if (term.trim()) {
-      params.set("q", term);
-    } else {
-      params.delete("q");
-    }
-    router.replace(`${pathname}?${params.toString()}`);
-  }, 300);
-
-  // For local search mode, use debounced effect
-  useEffect(() => {
-    if (mode === "local") {
-      const timer = setTimeout(() => {
-        // Call onSearch callback if provided
-        if (onSearch) {
-          onSearch(query);
-        }
-        // Update URL if enabled (independent of onSearch)
-        if (updateUrl) {
-          debouncedUrlUpdate(query);
-        }
-      }, 300);
-      return () => clearTimeout(timer);
-    }
-  }, [query, onSearch, mode, updateUrl, debouncedUrlUpdate]);
-
-  // Show/hide tag suggestions based on query and cursor position
-  useEffect(() => {
-    const tagInfo = getCurrentTagInfo();
-    const shouldShow =
-      mode === "local" && tagInfo.isTypingTag && tagSuggestions.length > 0;
-    setShowTagSuggestions(shouldShow);
-    setSelectedSuggestionIndex(-1);
-
-    if (shouldShow) {
-      setCurrentTagStart(tagInfo.start);
-      setCurrentTagEnd(tagInfo.end);
-    }
-  }, [query, tagSuggestions.length, mode]);
-
-  // Close suggestions when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        inputRef.current &&
-        !inputRef.current.contains(event.target as Node) &&
-        // Don't close if clicking on dropdown buttons
-        !(event.target as Element)?.closest('[role="option"]')
-      ) {
-        setShowTagSuggestions(false);
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
+  );
 
   // Initialize search on mount if there's a URL parameter
   useEffect(() => {
-    if (updateUrl && mode === "local" && onSearch && searchParams.get("q")) {
-      const urlQuery = searchParams.get("q") || "";
-      onSearch(urlQuery);
+    if (updateUrl && mode === "local" && onSearch) {
+      const urlQuery = getInitialQuery();
+      if (urlQuery) {
+        onSearch(urlQuery);
+      }
     }
-  }, [updateUrl, mode, onSearch, searchParams]);
+  }, [updateUrl, mode, onSearch, getInitialQuery]);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (!showTagSuggestions) return;
-
-    switch (e.key) {
-      case "ArrowDown":
-        e.preventDefault();
-        setSelectedSuggestionIndex((prev) =>
-          prev < tagSuggestions.length - 1 ? prev + 1 : prev
-        );
-        break;
-      case "ArrowUp":
-        e.preventDefault();
-        setSelectedSuggestionIndex((prev) => (prev > 0 ? prev - 1 : -1));
-        break;
-      case "Enter":
-        if (selectedSuggestionIndex >= 0) {
-          e.preventDefault();
-          selectTag(tagSuggestions[selectedSuggestionIndex]);
-        }
-        break;
-      case "Escape":
-        setShowTagSuggestions(false);
-        setSelectedSuggestionIndex(-1);
-        break;
+    const handled = tagAutocomplete.handleKeyDown(e);
+    // If tag autocomplete didn't handle it and it's Enter, proceed with form submission
+    if (!handled && e.key === "Enter") {
+      handleSubmit(e as any);
     }
   };
 
-  // Handle input changes and cursor position changes
+  // Handle input changes
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setQuery(e.target.value);
   };
 
   const handleInputClick = () => {
-    // Trigger re-evaluation of tag suggestions when cursor moves
-    setTimeout(() => {
-      const tagInfo = getCurrentTagInfo();
-      const shouldShow =
-        mode === "local" && tagInfo.isTypingTag && tagSuggestions.length > 0;
-      setShowTagSuggestions(shouldShow);
-      setSelectedSuggestionIndex(-1);
-
-      if (shouldShow) {
-        setCurrentTagStart(tagInfo.start);
-        setCurrentTagEnd(tagInfo.end);
-      }
-    }, 0);
-  };
-
-  const selectTag = (tag: string) => {
-    const tagInfo = getCurrentTagInfo();
-    if (!tagInfo.isTypingTag) return;
-
-    // Replace the current tag being typed with the selected tag
-    const beforeTag = query.slice(0, tagInfo.start);
-    const afterTag = query.slice(tagInfo.end);
-    const newQuery = `${beforeTag}@${tag}${afterTag}`;
-
-    setQuery(newQuery);
-    setShowTagSuggestions(false);
-    setSelectedSuggestionIndex(-1);
-
-    // Set cursor position after the inserted tag
-    setTimeout(() => {
-      if (inputRef.current) {
-        const newCursorPos = tagInfo.start + tag.length + 1; // +1 for the @
-        inputRef.current.setSelectionRange(newCursorPos, newCursorPos);
-        inputRef.current.focus();
-      }
-    }, 0);
-
-    if (mode === "local" && onSearch) {
-      onSearch(newQuery);
-      if (updateUrl) {
-        debouncedUrlUpdate(newQuery);
-      }
+    if (mode === "local") {
+      tagAutocomplete.updateCursorBasedSuggestions();
     }
   };
 
@@ -268,9 +122,7 @@ export function SearchForm({
     } else if (mode === "local" && onSearch) {
       // Trigger local search immediately
       onSearch(query.trim());
-      if (updateUrl) {
-        debouncedUrlUpdate(query.trim());
-      }
+      updateURL(query.trim());
     }
   };
 
@@ -279,9 +131,7 @@ export function SearchForm({
     if (mode === "local" && onSearch) {
       onSearch("");
     }
-    if (updateUrl) {
-      debouncedUrlUpdate("");
-    }
+    updateURL("");
   };
 
   const getDefaultPlaceholder = () => {
@@ -333,36 +183,39 @@ export function SearchForm({
             )}
 
             {/* Tag Suggestions Dropdown */}
-            {showTagSuggestions && (
+            {tagAutocomplete.showTagSuggestions && (
               <div className="absolute z-50 w-full mt-1 bg-white border border-slate-200 rounded-lg shadow-lg max-h-60 overflow-y-auto">
-                {tagSuggestions.map((tag, index) => (
-                  <button
-                    key={tag}
-                    type="button"
-                    role="option"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      selectTag(tag);
-                    }}
-                    onMouseDown={(e) => {
-                      e.preventDefault(); // Prevent input from losing focus
-                    }}
-                    className={`w-full text-left px-3 py-2 text-sm hover:bg-slate-50 flex items-center gap-2 transition-colors ${
-                      index === selectedSuggestionIndex
-                        ? "bg-emerald-50 text-emerald-900"
-                        : "text-slate-700"
-                    }`}
-                  >
-                    <TagIcon className="w-4 h-4 text-slate-400" />
-                    <span>{tag}</span>
-                  </button>
-                ))}
-                {tagSuggestions.length === 0 && query.length > 1 && (
-                  <div className="px-3 py-2 text-sm text-slate-500">
-                    No tags found matching "{query.slice(1)}"
-                  </div>
+                {tagAutocomplete.tagSuggestions.map(
+                  (tag: string, index: number) => (
+                    <button
+                      key={tag}
+                      type="button"
+                      role="option"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        tagAutocomplete.selectTag(tag);
+                      }}
+                      onMouseDown={(e) => {
+                        e.preventDefault(); // Prevent input from losing focus
+                      }}
+                      className={`w-full text-left px-3 py-2 text-sm hover:bg-slate-50 flex items-center gap-2 transition-colors ${
+                        index === tagAutocomplete.selectedSuggestionIndex
+                          ? "bg-emerald-50 text-emerald-900"
+                          : "text-slate-700"
+                      }`}
+                    >
+                      <TagIcon className="w-4 h-4 text-slate-400" />
+                      <span>{tag}</span>
+                    </button>
+                  )
                 )}
+                {tagAutocomplete.tagSuggestions.length === 0 &&
+                  query.length > 1 && (
+                    <div className="px-3 py-2 text-sm text-slate-500">
+                      No tags found matching "{query.slice(1)}"
+                    </div>
+                  )}
               </div>
             )}
           </div>
