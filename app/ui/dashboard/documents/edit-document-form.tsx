@@ -2,7 +2,7 @@
 
 import { useActionState } from "react";
 import { updateTextDocument } from "@/app/lib/actions";
-import { DocumentForm } from "./document-form";
+import { DocumentForm } from "@/app/ui/dashboard/documents/document-form";
 
 type Document = {
   id: string;

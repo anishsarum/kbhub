@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeftIcon } from "@heroicons/react/24/outline";
 import { getDocumentById } from "@/app/lib/actions";
-import { EditDocumentForm } from "./edit-document-form";
+import { EditDocumentForm } from "@/app/ui/dashboard/documents/edit-document-form";
 import Breadcrumbs from "@/app/ui/shared/breadcrumbs";
 
 interface EditDocumentContentProps {
