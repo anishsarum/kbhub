@@ -1,15 +1,14 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams, usePathname } from "next/navigation";
+import { useDebouncedCallback } from "use-debounce";
 import {
   MagnifyingGlassIcon,
   XMarkIcon,
   TagIcon,
 } from "@heroicons/react/24/outline";
 import { useTagAutocomplete } from "./hooks/useTagAutocomplete";
-import { useSearchURL } from "./hooks/useSearchURL";
-import { useDebouncedSearch } from "./hooks/useDebouncedSearch";
 
 type SearchMode = "semantic" | "local";
 
@@ -46,10 +45,34 @@ export function SearchForm({
   availableTags = [],
 }: SearchFormProps) {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Custom hooks
-  const { getInitialQuery, updateURL } = useSearchURL(updateUrl);
+  // Debounced URL update function
+  const debouncedUrlUpdate = useDebouncedCallback((term: string) => {
+    if (!updateUrl) return;
+    const params = new URLSearchParams(searchParams);
+    if (term.trim()) {
+      params.set("q", term);
+    } else {
+      params.delete("q");
+    }
+    router.replace(`${pathname}?${params.toString()}`);
+  }, 300);
+
+  const updateURL = (query: string) => {
+    if (updateUrl) {
+      debouncedUrlUpdate(query);
+    }
+  };
+
+  const getInitialQuery = (): string => {
+    if (updateUrl && searchParams.get("q")) {
+      return searchParams.get("q") || "";
+    }
+    return "";
+  };
 
   // Initialize query from URL if updateUrl is enabled, otherwise use initialQuery
   const [query, setQuery] = useState(() => {
@@ -57,17 +80,14 @@ export function SearchForm({
   });
 
   // Debounced search for local mode
-  useDebouncedSearch(
-    query,
-    (searchQuery) => {
-      if (onSearch) {
-        onSearch(searchQuery);
-      }
-      updateURL(searchQuery);
-    },
-    mode === "local",
-    300
-  );
+  useEffect(() => {
+    if (mode !== "local" || !onSearch) return;
+    const timer = setTimeout(() => {
+      onSearch(query);
+      updateURL(query);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [query, onSearch, mode, updateURL]);
 
   // Tag autocomplete functionality
   const tagAutocomplete = useTagAutocomplete(
@@ -91,7 +111,7 @@ export function SearchForm({
         onSearch(urlQuery);
       }
     }
-  }, [updateUrl, mode, onSearch, getInitialQuery]);
+  }, [updateUrl, mode, onSearch]);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     const handled = tagAutocomplete.handleKeyDown(e);

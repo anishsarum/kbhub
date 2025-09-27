@@ -114,11 +114,6 @@ export async function createTextDocument(
 ) {
   try {
     const session = await auth();
-    console.log("Session debug:", {
-      session,
-      userId: session?.user?.id,
-      email: session?.user?.email,
-    });
 
     if (!session?.user?.email) {
       return "You must be logged in to create documents.";
@@ -176,25 +171,20 @@ export async function createTextDocument(
     });
 
     // Generate embeddings for the document content
-    try {
-      const chunks = chunkText(content);
+    const chunks = chunkText(content);
 
-      // Create document chunks with embeddings
-      for (let i = 0; i < chunks.length; i++) {
-        const chunk = chunks[i];
-        const embedding = await generateEmbedding(chunk);
+    // Create document chunks with embeddings
+    for (let i = 0; i < chunks.length; i++) {
+      const chunk = chunks[i];
+      const embedding = await generateEmbedding(chunk);
 
-        await createDocumentChunk(
-          document.id,
-          chunk,
-          embedding,
-          i,
-          chunk.split(/\s+/).length
-        );
-      }
-    } catch (embeddingError) {
-      console.error("Error generating embeddings:", embeddingError);
-      // Continue without embeddings - the document was still created successfully
+      await createDocumentChunk(
+        document.id,
+        chunk,
+        embedding,
+        i,
+        chunk.split(/\s+/).length
+      );
     }
 
     revalidatePath("/dashboard/library");
@@ -377,28 +367,23 @@ export async function updateTextDocument(
     }
 
     // Regenerate embeddings for the updated content
-    try {
-      // Delete existing chunks
-      await deleteDocumentChunks(id);
+    // Delete existing chunks
+    await deleteDocumentChunks(id);
 
-      // Generate new chunks and embeddings
-      const chunks = chunkText(content);
+    // Generate new chunks and embeddings
+    const chunks = chunkText(content);
 
-      for (let i = 0; i < chunks.length; i++) {
-        const chunk = chunks[i];
-        const embedding = await generateEmbedding(chunk);
+    for (let i = 0; i < chunks.length; i++) {
+      const chunk = chunks[i];
+      const embedding = await generateEmbedding(chunk);
 
-        await createDocumentChunk(
-          id,
-          chunk,
-          embedding,
-          i,
-          chunk.split(/\s+/).length
-        );
-      }
-    } catch (embeddingError) {
-      console.error("Error regenerating embeddings:", embeddingError);
-      // Continue without embeddings - the document update was still successful
+      await createDocumentChunk(
+        id,
+        chunk,
+        embedding,
+        i,
+        chunk.split(/\s+/).length
+      );
     }
 
     revalidatePath("/dashboard/library");
@@ -481,17 +466,6 @@ export async function semanticSearch(query: string) {
       15, // limit to 15 results for better demonstration
       0.1 // similarity threshold (0.1 = 10% similar - very permissive for demo)
     );
-
-    console.log(`Search for "${query}" returned ${results.length} results`);
-    if (results.length > 0) {
-      console.log(
-        "Top result similarity scores:",
-        results.slice(0, 3).map((r) => ({
-          title: r.document_title,
-          similarity: r.similarity_score,
-        }))
-      );
-    }
 
     return results;
   } catch (error) {
