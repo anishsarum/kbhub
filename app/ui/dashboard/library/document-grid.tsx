@@ -1,10 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import {
-  DocumentIcon,
-  MagnifyingGlassIcon,
-} from "@heroicons/react/24/outline";
+import { DocumentIcon, MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 import { Document } from "@/app/lib/definitions";
 import { filterDocuments } from "@/app/lib/document-utils";
 import { DocumentCard } from "./document-card";
@@ -16,11 +13,11 @@ interface DocumentGridProps {
   showSearchResults?: boolean;
 }
 
-export function DocumentGrid({ 
-  documents, 
-  searchQuery = "", 
+export function DocumentGrid({
+  documents,
+  searchQuery = "",
   showEmptyState = true,
-  showSearchResults = false
+  showSearchResults = false,
 }: DocumentGridProps) {
   const filteredDocuments = filterDocuments(documents, searchQuery);
 
@@ -91,9 +88,9 @@ interface DocumentsGridProps {
 
 export function DocumentsGrid({ documents, searchQuery }: DocumentsGridProps) {
   return (
-    <DocumentGrid 
-      documents={documents} 
-      searchQuery={searchQuery} 
+    <DocumentGrid
+      documents={documents}
+      searchQuery={searchQuery}
       showEmptyState={true}
       showSearchResults={true}
     />
