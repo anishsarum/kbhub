@@ -1,5 +1,5 @@
 import { getUserDocuments } from "@/app/lib/actions";
-import { DocumentsGrid } from "@/app/ui/dashboard/library/documents-grid";
+import { DocumentsGrid } from "@/app/ui/dashboard/library/document-grid";
 
 type LibraryResultsProps = {
   searchQuery: string;
