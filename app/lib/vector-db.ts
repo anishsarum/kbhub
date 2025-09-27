@@ -9,7 +9,7 @@ export async function createDocumentChunk(
 ) {
   const chunkId = `chunk_${Date.now()}_${Math.random()
     .toString(36)
-    .substr(2, 9)}`;
+    .slice(2, 11)}`;
 
   await prisma.$executeRaw`
     INSERT INTO document_chunks (id, content, embedding, "chunkIndex", "wordCount", "documentId", "createdAt")
