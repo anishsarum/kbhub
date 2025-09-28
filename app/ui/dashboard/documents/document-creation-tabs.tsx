@@ -6,7 +6,7 @@ import {
   DocumentArrowUpIcon,
 } from "@heroicons/react/24/outline";
 import { CreateTextDocumentForm } from "@/app/ui/dashboard/documents/create-text-document-form";
-import { UploadPDFPlaceholder } from "@/app/ui/dashboard/documents/upload-pdf-placeholder";
+import { UploadPDFPlaceholder } from "@/app/ui/dashboard/documents/pdf-upload-placeholder";
 
 type TabType = "text" | "pdf";
 

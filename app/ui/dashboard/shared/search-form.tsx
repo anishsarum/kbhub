@@ -8,7 +8,7 @@ import {
   XMarkIcon,
   TagIcon,
 } from "@heroicons/react/24/outline";
-import { useTagAutocomplete } from "./hooks/useTagAutocomplete";
+import { useTagAutocomplete } from "./hooks/use-tag-autocomplete";
 
 type SearchMode = "semantic" | "local";
 

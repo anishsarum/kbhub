@@ -3,7 +3,7 @@
 import { useState, useRef } from "react";
 import Link from "next/link";
 import { DocumentTextIcon } from "@heroicons/react/24/outline";
-import { useTagAutocomplete } from "@/app/ui/dashboard/shared/hooks/useTagAutocomplete";
+import { useTagAutocomplete } from "@/app/ui/dashboard/shared/hooks/use-tag-autocomplete";
 
 type Document = {
   id: string;
