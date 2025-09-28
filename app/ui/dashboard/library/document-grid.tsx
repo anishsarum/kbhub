@@ -5,6 +5,7 @@ import { DocumentIcon, MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 import { Document } from "@/app/lib/definitions";
 import { filterDocuments } from "@/app/lib/document-utils";
 import { DocumentCard } from "@/app/ui/dashboard/library/document-card";
+import { Button } from "@/app/ui/shared/button";
 
 interface DocumentGridProps {
   documents: Document[];
@@ -32,11 +33,10 @@ export function DocumentGrid({
         <p className="text-emerald-700 mb-4">
           Get started by creating your first document or uploading a PDF.
         </p>
-        <Link
-          href="/dashboard/documents"
-          className="inline-flex items-center px-4 py-2 bg-emerald-600 text-white text-sm font-medium rounded-md hover:bg-emerald-700 transition-colors"
-        >
-          Create Document
+        <Link href="/dashboard/documents">
+          <Button>
+            Create Document
+          </Button>
         </Link>
       </div>
     );

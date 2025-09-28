@@ -20,3 +20,11 @@ export interface User {
   email: string;
   // Add other user properties as needed
 }
+
+export interface SearchResult {
+  id: string;
+  content: string;
+  documentId: string;
+  document_title: string;
+  similarity_score: number;
+}

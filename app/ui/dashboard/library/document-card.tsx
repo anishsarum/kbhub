@@ -6,6 +6,7 @@ import {
 } from "@heroicons/react/24/outline";
 import { Document } from "@/app/lib/definitions";
 import { formatDate, truncateContent } from "@/app/lib/utils";
+import { Card } from "@/app/ui/shared/card";
 
 interface DocumentCardProps {
   document: Document;
@@ -15,8 +16,9 @@ export function DocumentCard({ document }: DocumentCardProps) {
   return (
     <Link
       href={`/dashboard/library/${document.id}`}
-      className="bg-white rounded-lg shadow-md border border-gray-200 p-6 hover:shadow-lg hover:border-emerald-300 transition-all duration-200 cursor-pointer group flex flex-col h-full"
+      className="cursor-pointer group flex flex-col h-full"
     >
+      <Card variant="hover" className="flex flex-col h-full">
       <div className="flex items-start justify-start gap-4 mb-3">
         <div className="flex items-center">
           <DocumentIcon className="h-5 w-5 text-emerald-600 mr-2 flex-shrink-0" />
@@ -60,6 +62,7 @@ export function DocumentCard({ document }: DocumentCardProps) {
       ) : (
         <div className="mt-auto"></div>
       )}
+      </Card>
     </Link>
   );
 }

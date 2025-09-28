@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { DocumentTextIcon } from "@heroicons/react/24/outline";
 import { useTagAutocomplete } from "@/app/ui/dashboard/shared/hooks/use-tag-autocomplete";
+import { Button } from "@/app/ui/shared/button";
 
 type Document = {
   id: string;
@@ -256,22 +257,18 @@ export function DocumentForm({
         {/* Submit Buttons */}
         <div className="flex justify-end space-x-3">
           {isEdit && document && (
-            <Link
-              href={`/dashboard/library/${document.id}`}
-              className="px-6 py-2 border border-slate-300 rounded-lg text-slate-700 font-medium hover:bg-slate-50 focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
-            >
-              Cancel
+            <Link href={`/dashboard/library/${document.id}`}>
+              <Button variant="secondary" size="lg">
+                Cancel
+              </Button>
             </Link>
           )}
 
-          <button
+          <Button
             type="submit"
-            disabled={isPending || !isFormValid}
-            className={`px-6 py-2 rounded-lg text-white font-medium ${
-              isPending || !isFormValid
-                ? "bg-emerald-400 cursor-not-allowed"
-                : "bg-emerald-600 hover:bg-emerald-700"
-            } focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2`}
+            loading={isPending}
+            disabled={!isFormValid}
+            size="lg"
           >
             {isPending
               ? isEdit
@@ -280,7 +277,7 @@ export function DocumentForm({
               : isEdit
               ? "Update Document"
               : "Create Document"}
-          </button>
+          </Button>
         </div>
       </form>
     </div>

@@ -3,6 +3,8 @@
 import { useState, useEffect, useActionState } from "react";
 import { useSearchParams } from "next/navigation";
 import { authenticate, registerUser } from "@/app/lib/auth-actions";
+import { Card } from "@/app/ui/shared/card";
+import { Button } from "@/app/ui/shared/button";
 
 export default function AuthForm() {
   const searchParams = useSearchParams();
@@ -28,7 +30,7 @@ export default function AuthForm() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-slate-50">
-      <div className="max-w-md w-full space-y-8 p-8 bg-white rounded-lg shadow-md">
+      <Card padding="lg" className="max-w-md w-full space-y-8">
         {/* Header */}
         <div className="text-center">
           <h2 className="text-3xl font-bold text-slate-900">
@@ -88,15 +90,10 @@ export default function AuthForm() {
           <input type="hidden" name="redirectTo" value="/dashboard" />
 
           {/* Submit Button */}
-          <button
+          <Button
             type="submit"
-            disabled={isPending}
-            className={`w-full flex justify-center py-2 px-4 border border-transparent rounded-lg 
-                     shadow-sm text-sm font-medium text-white ${
-                       isPending
-                         ? "bg-emerald-400 cursor-not-allowed"
-                         : "bg-emerald-600 hover:bg-emerald-700"
-                     } focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500`}
+            loading={isPending}
+            className="w-full"
           >
             {isPending
               ? isLogin
@@ -105,7 +102,7 @@ export default function AuthForm() {
               : isLogin
               ? "Sign In"
               : "Create Account"}
-          </button>
+          </Button>
 
           {/* Error Message */}
           {errorMessage && (
@@ -134,7 +131,7 @@ export default function AuthForm() {
             </button>
           </div>
         </form>
-      </div>
+      </Card>
     </div>
   );
 }

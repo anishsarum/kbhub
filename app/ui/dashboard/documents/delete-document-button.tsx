@@ -3,6 +3,7 @@
 import { useState, useActionState } from "react";
 import { deleteDocument } from "@/app/lib/document-actions";
 import { TrashIcon } from "@heroicons/react/24/outline";
+import { Button } from "@/app/ui/shared/button";
 
 interface DeleteDocumentButtonProps {
   documentId: string;
@@ -42,25 +43,21 @@ export function DeleteDocumentButton({
           )}
 
           <div className="flex justify-end space-x-3">
-            <button
+            <Button
               onClick={() => setShowConfirmation(false)}
               disabled={isPending}
-              className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 font-medium hover:bg-gray-50 disabled:opacity-50 cursor-pointer"
+              variant="outline"
             >
               Cancel
-            </button>
+            </Button>
             <form action={formAction} className="inline">
-              <button
+              <Button
                 type="submit"
-                disabled={isPending}
-                className={`px-4 py-2 rounded-md text-white font-medium ${
-                  isPending
-                    ? "bg-red-400 cursor-not-allowed"
-                    : "bg-red-600 hover:bg-red-700 cursor-pointer"
-                } focus:ring-2 focus:ring-red-500 focus:ring-offset-2`}
+                loading={isPending}
+                variant="danger"
               >
                 {isPending ? "Deleting..." : "Delete"}
-              </button>
+              </Button>
             </form>
           </div>
         </div>
@@ -69,12 +66,12 @@ export function DeleteDocumentButton({
   }
 
   return (
-    <button
+    <Button
       onClick={() => setShowConfirmation(true)}
-      className="inline-flex items-center px-4 py-2 border border-red-300 rounded-md text-red-700 text-sm font-medium hover:bg-red-50 transition-colors cursor-pointer"
+      variant="danger-outline"
     >
       <TrashIcon className="h-4 w-4 mr-2" />
       Delete
-    </button>
+    </Button>
   );
 }

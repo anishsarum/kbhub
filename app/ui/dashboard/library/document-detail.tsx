@@ -11,6 +11,7 @@ import { getDocumentById } from "@/app/lib/document-actions";
 import { DeleteDocumentButton } from "@/app/ui/dashboard/documents/delete-document-button";
 import Breadcrumbs from "@/app/ui/shared/breadcrumbs";
 import { formatDateTime } from "@/app/lib/utils";
+import { Button } from "@/app/ui/shared/button";
 
 interface DocumentDetailProps {
   id: string;
@@ -67,12 +68,11 @@ export async function DocumentDetail({ id }: DocumentDetailProps) {
 
           {/* Action Buttons */}
           <div className="flex space-x-3">
-            <Link
-              href={`/dashboard/library/${document.id}/edit`}
-              className="inline-flex items-center px-4 py-2 bg-emerald-600 text-white text-sm font-medium rounded-md hover:bg-emerald-700 transition-colors"
-            >
-              <PencilIcon className="h-4 w-4 mr-2" />
-              Edit
+            <Link href={`/dashboard/library/${document.id}/edit`}>
+              <Button>
+                <PencilIcon className="h-4 w-4 mr-2" />
+                Edit
+              </Button>
             </Link>
 
             <DeleteDocumentButton

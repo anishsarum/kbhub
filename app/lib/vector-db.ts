@@ -1,4 +1,5 @@
 import { prisma } from "./db";
+import type { SearchResult } from "./definitions";
 
 /**
  * Creates a new document chunk with vector embedding in the database
@@ -48,13 +49,6 @@ export async function deleteDocumentChunks(documentId: string) {
   `;
 }
 
-export type SearchResult = {
-  id: string;
-  content: string;
-  documentId: string;
-  document_title: string;
-  similarity_score: number;
-};
 
 /**
  * Performs vector similarity search across document chunks
@@ -73,14 +67,14 @@ export async function searchSimilarChunks(
   similarityThreshold: number = 0.5
 ): Promise<SearchResult[]> {
   // Cosine distance query using pgvector <=> operator
-  // Lower distance = higher similarity, so we calculate 1 - distance
+  // Convert distance (0-2) to similarity (0-1): (2 - distance) / 2
   const results = await prisma.$queryRaw<SearchResult[]>`
     SELECT
       dc.id,
       dc.content,
       dc."documentId" as "documentId",
       d.title as document_title,
-      1 - (dc.embedding <=> ${embedding}::vector) as similarity_score
+      (2 - (dc.embedding <=> ${embedding}::vector)) / 2 as similarity_score
     FROM document_chunks dc
     JOIN documents d ON dc."documentId" = d.id
     WHERE d."userId" = ${userId}
