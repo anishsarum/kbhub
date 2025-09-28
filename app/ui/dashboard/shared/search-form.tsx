@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { useDebouncedCallback } from "use-debounce";
 import {
@@ -61,18 +61,21 @@ export function SearchForm({
     router.replace(`${pathname}?${params.toString()}`);
   }, 300);
 
-  const updateURL = (query: string) => {
-    if (updateUrl) {
-      debouncedUrlUpdate(query);
-    }
-  };
+  const updateURL = useCallback(
+    (query: string) => {
+      if (updateUrl) {
+        debouncedUrlUpdate(query);
+      }
+    },
+    [updateUrl, debouncedUrlUpdate]
+  );
 
-  const getInitialQuery = (): string => {
+  const getInitialQuery = useCallback((): string => {
     if (updateUrl && searchParams.get("q")) {
       return searchParams.get("q") || "";
     }
     return "";
-  };
+  }, [updateUrl, searchParams]);
 
   // Initialize query from URL if updateUrl is enabled, otherwise use initialQuery
   const [query, setQuery] = useState(() => {
@@ -81,9 +84,11 @@ export function SearchForm({
 
   // Debounced search for local mode
   useEffect(() => {
-    if (mode !== "local" || !onSearch) return;
+    if (mode !== "local") return;
     const timer = setTimeout(() => {
-      onSearch(query);
+      if (onSearch) {
+        onSearch(query);
+      }
       updateURL(query);
     }, 300);
     return () => clearTimeout(timer);
@@ -105,13 +110,13 @@ export function SearchForm({
 
   // Initialize search on mount if there's a URL parameter
   useEffect(() => {
-    if (updateUrl && mode === "local" && onSearch) {
+    if (updateUrl && mode === "local") {
       const urlQuery = getInitialQuery();
-      if (urlQuery) {
+      if (urlQuery && onSearch) {
         onSearch(urlQuery);
       }
     }
-  }, [updateUrl, mode, onSearch]);
+  }, [updateUrl, mode, onSearch, getInitialQuery]);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     const handled = tagAutocomplete.handleKeyDown(e);
