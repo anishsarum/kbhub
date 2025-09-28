@@ -5,14 +5,22 @@ import { prisma } from "./db";
 import { generateEmbedding } from "./embeddings";
 import { searchSimilarChunks } from "./vector-db";
 
+/**
+ * Performs AI-powered semantic search across user's document collection
+ * Uses vector embeddings to find contextually similar content, not just keyword matches
+ *
+ * @param query - Natural language search query from user
+ * @returns Array of relevant document chunks with similarity scores
+ */
 export async function semanticSearch(query: string) {
   try {
+    // Authentication check - ensure user is logged in
     const session = await auth();
     if (!session?.user?.email) {
       throw new Error("You must be logged in to search documents.");
     }
 
-    // Get user from database
+    // Retrieve user ID for database queries
     const user = await prisma.user.findUnique({
       where: { email: session.user.email },
       select: { id: true },
@@ -22,14 +30,15 @@ export async function semanticSearch(query: string) {
       throw new Error("User not found");
     }
 
+    // Handle empty queries
     if (!query.trim()) {
       return [];
     }
 
-    // Generate embedding for the search query
+    // Convert search query to vector embedding using AI model
     const queryEmbedding = await generateEmbedding(query.trim());
 
-    // Search for similar document chunks
+    // Find document chunks with similar semantic meaning
     const results = await searchSimilarChunks(
       queryEmbedding,
       user.id,

@@ -41,58 +41,51 @@ export function DocumentForm({
     return "";
   });
 
-  // Validate tags for single-word requirement
+  // Tag validation: ensures @tags follow single-word format
   const validateTags = (tagsValue: string) => {
+    // Find all @tag patterns in the input
     const tagMatches = tagsValue.match(/@[\w-]+/g) || [];
-    const invalidTags = tagMatches.filter(tag => {
-      const tagContent = tag.slice(1); // Remove @
-      return !/^[\w-]+$/.test(tagContent); // Check if it's only word characters and hyphens
+    const invalidTags = tagMatches.filter((tag) => {
+      const tagContent = tag.slice(1); // Remove @ symbol
+      return !/^[\w-]+$/.test(tagContent); // Only allow letters, numbers, underscores, hyphens
     });
 
-    // Also check for @tags that have spaces after them (incomplete tags)
+    // Detect incomplete tags: @word followed by space then more text (indicates multi-word attempt)
     const incompleteMatches = tagsValue.match(/@\w+\s+\w/g) || [];
 
     return {
       isValid: invalidTags.length === 0 && incompleteMatches.length === 0,
       invalidTags,
-      hasIncomplete: incompleteMatches.length > 0
+      hasIncomplete: incompleteMatches.length > 0,
     };
   };
 
   const tagValidation = validateTags(tags);
 
-  // Tag autocomplete functionality
-  const tagAutocomplete = useTagAutocomplete(
-    tags,
-    availableTags,
-    (newTags) => setTags(newTags)
+  // Initialize tag autocomplete with current input and available options
+  const tagAutocomplete = useTagAutocomplete(tags, availableTags, (newTags) =>
+    setTags(newTags)
   );
+
+  // Process @notation tags into comma-separated format for server submission
+  const extractedTags =
+    tags
+      .match(/@[\w-]+/g) // Find all valid @tags
+      ?.map((tag) => tag.slice(1)) // Remove @ symbols
+      .join(", ") || "";
 
   // Convert @notation tags to comma-separated format for server
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    const form = event.currentTarget;
-    const formData = new FormData(form);
-
     // Validate tags before submission
     const validation = validateTags(tags);
     if (!validation.isValid) {
-      // Don't submit if there are invalid tags
+      // Prevent form submission if there are invalid tags
+      event.preventDefault();
       return;
     }
 
-    // Extract @tags and convert to comma-separated format
-    const tagsValue = tags;
-    const extractedTags = tagsValue
-      .match(/@[\w-]+/g)
-      ?.map((tag) => tag.slice(1))
-      .join(", ") || "";
-
-    // Update the form data with converted tags
-    formData.set("tags", extractedTags);
-
-    // Call the original form action with the processed data
-    formAction(formData);
+    // Let the form handle the submission naturally
+    // The processed tags will be sent via the hidden input
   };
 
   return (
@@ -118,7 +111,7 @@ export function DocumentForm({
         </h2>
       )}
 
-      <form className="space-y-6" onSubmit={handleSubmit}>
+      <form className="space-y-6" action={formAction} onSubmit={handleSubmit}>
         {/* Title */}
         <div>
           <label
@@ -169,11 +162,12 @@ export function DocumentForm({
           <div className="relative">
             <input
               type="text"
-              id="tags"
-              name="tags"
+              id="tags-display"
               value={tags}
               onChange={(e) => setTags(e.target.value)}
               onKeyDown={tagAutocomplete.handleKeyDown}
+              onFocus={tagAutocomplete.handleFocus}
+              onBlur={tagAutocomplete.handleBlur}
               className={`w-full px-3 py-2 border rounded-lg shadow-sm focus:ring-emerald-500 focus:border-emerald-500 ${
                 !tagValidation.isValid
                   ? "border-red-300 bg-red-50"
@@ -181,6 +175,8 @@ export function DocumentForm({
               }`}
               placeholder="@research @notes @important"
             />
+            {/* Hidden input with processed tags for form submission */}
+            <input type="hidden" name="tags" value={extractedTags} />
             {tagAutocomplete.showTagSuggestions && (
               <div className="absolute z-10 w-full mt-1 bg-white border border-slate-200 rounded-lg shadow-lg max-h-48 overflow-y-auto">
                 {tagAutocomplete.tagSuggestions.map(
@@ -210,10 +206,16 @@ export function DocumentForm({
           {!tagValidation.isValid && (
             <div className="mt-2 text-sm text-red-600">
               {tagValidation.hasIncomplete && (
-                <p>⚠️ Tags must be single words. Separate tags with spaces, not within tag names.</p>
+                <p>
+                  Tags must be single words. Separate tags with spaces, not
+                  within tag names.
+                </p>
               )}
               {tagValidation.invalidTags.length > 0 && (
-                <p>⚠️ Invalid tags: {tagValidation.invalidTags.join(", ")}. Use only letters, numbers, and underscores.</p>
+                <p>
+                  Invalid tags: {tagValidation.invalidTags.join(", ")}. Use only
+                  letters, numbers, and underscores.
+                </p>
               )}
             </div>
           )}

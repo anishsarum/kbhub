@@ -14,6 +14,14 @@ const CreateTextDocumentSchema = z.object({
   tags: z.string().optional(),
 });
 
+/**
+ * Server action: Creates a new text document with AI-powered search embeddings
+ * Processes the document content into chunks and generates vector embeddings for semantic search
+ *
+ * @param prevState - Previous form state (for form error handling)
+ * @param formData - Form data containing title, content, and tags
+ * @returns Error message on failure, redirects to library on success
+ */
 export async function createTextDocument(
   prevState: string | undefined,
   formData: FormData
@@ -76,20 +84,20 @@ export async function createTextDocument(
       },
     });
 
-    // Generate embeddings for the document content
+    // AI Processing: Break content into searchable chunks and generate vector embeddings
     const chunks = chunkText(content);
 
-    // Create document chunks with embeddings
+    // Store each chunk with its AI-generated vector embedding for semantic search
     for (let i = 0; i < chunks.length; i++) {
       const chunk = chunks[i];
-      const embedding = await generateEmbedding(chunk);
+      const embedding = await generateEmbedding(chunk); // OpenAI API call
 
       await createDocumentChunk(
         document.id,
         chunk,
         embedding,
         i,
-        chunk.split(/\s+/).length
+        chunk.split(/\s+/).length // Simple word count
       );
     }
 
@@ -172,16 +180,15 @@ export async function updateTextDocument(
       return "Document not found or you don't have permission to edit it.";
     }
 
-    // Regenerate embeddings for the updated content
-    // Delete existing chunks
-    await deleteDocumentChunks(id);
+    // AI Re-processing: Update requires regenerating all embeddings for accurate search
+    await deleteDocumentChunks(id); // Clear old vector embeddings
 
-    // Generate new chunks and embeddings
+    // Generate fresh chunks and embeddings for updated content
     const chunks = chunkText(content);
 
     for (let i = 0; i < chunks.length; i++) {
       const chunk = chunks[i];
-      const embedding = await generateEmbedding(chunk);
+      const embedding = await generateEmbedding(chunk); // Fresh OpenAI API call
 
       await createDocumentChunk(
         id,
@@ -271,6 +278,12 @@ export async function getUserDocuments() {
   return user.documents;
 }
 
+/**
+ * Retrieves all unique tags across user's document collection
+ * Used to populate tag autocomplete suggestions in forms and search
+ *
+ * @returns Sorted array of unique tag names from user's documents
+ */
 export async function getUserTags() {
   const session = await auth();
 
@@ -293,7 +306,7 @@ export async function getUserTags() {
     throw new Error("User not found");
   }
 
-  // Extract all unique tags from all documents
+  // Aggregate and deduplicate tags from all user documents
   const allTags = user.documents.flatMap((doc) => doc.tags);
   const uniqueTags = [...new Set(allTags)].sort();
 

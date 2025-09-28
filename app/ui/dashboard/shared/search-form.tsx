@@ -34,6 +34,13 @@ type SearchFormProps = SearchConfig &
     onSearch?: (query: string) => void;
   };
 
+/**
+ * Versatile search form component supporting two modes:
+ * - "semantic": AI-powered search with navigation to results page
+ * - "local": Real-time keyword search with instant results
+ *
+ * Features: URL synchronization, tag autocomplete, debounced updates
+ */
 export function SearchForm({
   initialQuery = "",
   mode = "semantic",
@@ -48,17 +55,17 @@ export function SearchForm({
   const searchParams = useSearchParams();
   const pathname = usePathname();
 
-  // Debounced URL update function
+  // URL synchronization: updates browser address bar with search query (debounced)
   const debouncedUrlUpdate = useDebouncedCallback((term: string) => {
     if (!updateUrl) return;
     const params = new URLSearchParams(searchParams);
     if (term.trim()) {
-      params.set("q", term);
+      params.set("q", term); // Add query parameter
     } else {
-      params.delete("q");
+      params.delete("q"); // Remove empty query
     }
     router.replace(`${pathname}?${params.toString()}`);
-  }, 300);
+  }, 300); // 300ms delay to avoid excessive URL updates
 
   const updateURL = useCallback(
     (query: string) => {
@@ -69,6 +76,7 @@ export function SearchForm({
     [updateUrl, debouncedUrlUpdate]
   );
 
+  // Extract initial query from URL parameters when component mounts
   const getInitialQuery = useCallback((): string => {
     if (updateUrl && searchParams.get("q")) {
       return searchParams.get("q") || "";
@@ -76,20 +84,20 @@ export function SearchForm({
     return "";
   }, [updateUrl, searchParams]);
 
-  // Initialize query from URL if updateUrl is enabled, otherwise use initialQuery
+  // State initialization: prioritize URL query over prop when URL sync is enabled
   const [query, setQuery] = useState(() => {
     return updateUrl ? getInitialQuery() || initialQuery : initialQuery;
   });
 
-  // Debounced search for local mode
+  // Auto-search in local mode: triggers search as user types (debounced)
   useEffect(() => {
-    if (mode !== "local") return;
+    if (mode !== "local") return; // Only auto-search in local mode
     const timer = setTimeout(() => {
       if (onSearch) {
         onSearch(query);
       }
       updateURL(query);
-    }, 300);
+    }, 300); // 300ms delay for better UX
     return () => clearTimeout(timer);
   }, [query, onSearch, mode, updateURL]);
 
@@ -188,6 +196,8 @@ export function SearchForm({
               onClick={handleInputClick}
               onKeyUp={handleInputClick}
               onKeyDown={handleKeyDown}
+              onFocus={tagAutocomplete.handleFocus}
+              onBlur={tagAutocomplete.handleBlur}
               placeholder={placeholder || getDefaultPlaceholder()}
               className="w-full px-3 py-2 pr-10 border border-slate-300 rounded-lg shadow-sm focus:ring-emerald-500 focus:border-emerald-500"
             />
