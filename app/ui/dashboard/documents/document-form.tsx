@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { DocumentTextIcon } from "@heroicons/react/24/outline";
 import { useTagAutocomplete } from "@/app/ui/dashboard/shared/hooks/use-tag-autocomplete";
@@ -33,7 +33,6 @@ export function DocumentForm({
   availableTags = [],
 }: DocumentFormProps) {
   const isEdit = mode === "edit";
-  const inputRef = useRef<HTMLInputElement>(null);
   const [tags, setTags] = useState(() => {
     // Convert existing tags to @notation format
     if (document?.tags.length) {
@@ -42,11 +41,30 @@ export function DocumentForm({
     return "";
   });
 
+  // Validate tags for single-word requirement
+  const validateTags = (tagsValue: string) => {
+    const tagMatches = tagsValue.match(/@[\w-]+/g) || [];
+    const invalidTags = tagMatches.filter(tag => {
+      const tagContent = tag.slice(1); // Remove @
+      return !/^[\w-]+$/.test(tagContent); // Check if it's only word characters and hyphens
+    });
+
+    // Also check for @tags that have spaces after them (incomplete tags)
+    const incompleteMatches = tagsValue.match(/@\w+\s+\w/g) || [];
+
+    return {
+      isValid: invalidTags.length === 0 && incompleteMatches.length === 0,
+      invalidTags,
+      hasIncomplete: incompleteMatches.length > 0
+    };
+  };
+
+  const tagValidation = validateTags(tags);
+
   // Tag autocomplete functionality
   const tagAutocomplete = useTagAutocomplete(
     tags,
     availableTags,
-    inputRef,
     (newTags) => setTags(newTags)
   );
 
@@ -56,14 +74,19 @@ export function DocumentForm({
     const form = event.currentTarget;
     const formData = new FormData(form);
 
+    // Validate tags before submission
+    const validation = validateTags(tags);
+    if (!validation.isValid) {
+      // Don't submit if there are invalid tags
+      return;
+    }
+
     // Extract @tags and convert to comma-separated format
     const tagsValue = tags;
     const extractedTags = tagsValue
-      .split(/\s+/)
-      .filter((tag) => tag.startsWith("@"))
-      .map((tag) => tag.slice(1).trim())
-      .filter(Boolean)
-      .join(", ");
+      .match(/@[\w-]+/g)
+      ?.map((tag) => tag.slice(1))
+      .join(", ") || "";
 
     // Update the form data with converted tags
     formData.set("tags", extractedTags);
@@ -145,14 +168,17 @@ export function DocumentForm({
           </label>
           <div className="relative">
             <input
-              ref={inputRef}
               type="text"
               id="tags"
               name="tags"
               value={tags}
               onChange={(e) => setTags(e.target.value)}
               onKeyDown={tagAutocomplete.handleKeyDown}
-              className="w-full px-3 py-2 border border-slate-300 rounded-lg shadow-sm focus:ring-emerald-500 focus:border-emerald-500"
+              className={`w-full px-3 py-2 border rounded-lg shadow-sm focus:ring-emerald-500 focus:border-emerald-500 ${
+                !tagValidation.isValid
+                  ? "border-red-300 bg-red-50"
+                  : "border-slate-300"
+              }`}
               placeholder="@research @notes @important"
             />
             {tagAutocomplete.showTagSuggestions && (
@@ -181,6 +207,16 @@ export function DocumentForm({
             Type @ followed by tag name to add tags. e.g., @research @notes
             @important
           </p>
+          {!tagValidation.isValid && (
+            <div className="mt-2 text-sm text-red-600">
+              {tagValidation.hasIncomplete && (
+                <p>⚠️ Tags must be single words. Separate tags with spaces, not within tag names.</p>
+              )}
+              {tagValidation.invalidTags.length > 0 && (
+                <p>⚠️ Invalid tags: {tagValidation.invalidTags.join(", ")}. Use only letters, numbers, and underscores.</p>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Error Message */}

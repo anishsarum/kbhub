@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { useDebouncedCallback } from "use-debounce";
 import {
@@ -47,7 +47,6 @@ export function SearchForm({
   const router = useRouter();
   const searchParams = useSearchParams();
   const pathname = usePathname();
-  const inputRef = useRef<HTMLInputElement>(null);
 
   // Debounced URL update function
   const debouncedUrlUpdate = useDebouncedCallback((term: string) => {
@@ -98,7 +97,6 @@ export function SearchForm({
   const tagAutocomplete = useTagAutocomplete(
     query,
     availableTags,
-    inputRef,
     (newQuery) => {
       setQuery(newQuery);
       if (mode === "local" && onSearch) {
@@ -183,7 +181,6 @@ export function SearchForm({
           </label>
           <div className="relative">
             <input
-              ref={inputRef}
               id="search"
               type="text"
               value={query}

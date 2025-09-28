@@ -1,20 +1,18 @@
-import { useState, useEffect, RefObject } from "react";
+import { useState, useEffect } from "react";
 
 export function useTagAutocomplete(
   query: string,
   availableTags: string[],
-  inputRef: RefObject<HTMLInputElement | null>,
   onTagSelect?: (newQuery: string) => void
 ) {
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(-1);
 
-  // Simple check if we're typing a tag (starts with @)
-  const isTypingTag = query.includes("@");
-  const lastAtIndex = query.lastIndexOf("@");
-  const tagQuery = isTypingTag
-    ? query.slice(lastAtIndex + 1).toLowerCase()
-    : "";
+  // Check if we're typing a tag (@ followed by word characters and hyphens, no spaces)
+  const tagMatch = query.match(/(?:^|\s)@([\w-]*)$/);
+  const isTypingTag = !!tagMatch;
+  const tagQuery = isTypingTag ? tagMatch[1].toLowerCase() : "";
+  const lastAtIndex = isTypingTag ? query.lastIndexOf("@") : -1;
 
   // Get filtered suggestions
   const suggestions =
