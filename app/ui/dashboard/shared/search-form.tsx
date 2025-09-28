@@ -31,7 +31,6 @@ type SearchFormProps = SearchConfig &
   URLConfig &
   TagConfig & {
     initialQuery?: string;
-    onSearch?: (query: string) => void;
   };
 
 /**
@@ -44,7 +43,6 @@ type SearchFormProps = SearchConfig &
 export function SearchForm({
   initialQuery = "",
   mode = "semantic",
-  onSearch,
   placeholder,
   description,
   showButton = true,
@@ -89,17 +87,14 @@ export function SearchForm({
     return updateUrl ? getInitialQuery() || initialQuery : initialQuery;
   });
 
-  // Auto-search in local mode: triggers search as user types (debounced)
+  // Auto-update URL in local mode: updates browser URL as user types (debounced)
   useEffect(() => {
-    if (mode !== "local") return; // Only auto-search in local mode
+    if (mode !== "local") return; // Only auto-update URL in local mode
     const timer = setTimeout(() => {
-      if (onSearch) {
-        onSearch(query);
-      }
       updateURL(query);
     }, 300); // 300ms delay for better UX
     return () => clearTimeout(timer);
-  }, [query, onSearch, mode, updateURL]);
+  }, [query, mode, updateURL]);
 
   // Tag autocomplete functionality
   const tagAutocomplete = useTagAutocomplete(
@@ -107,22 +102,13 @@ export function SearchForm({
     availableTags,
     (newQuery) => {
       setQuery(newQuery);
-      if (mode === "local" && onSearch) {
-        onSearch(newQuery);
+      if (mode === "local") {
         updateURL(newQuery);
       }
     }
   );
 
-  // Initialize search on mount if there's a URL parameter
-  useEffect(() => {
-    if (updateUrl && mode === "local") {
-      const urlQuery = getInitialQuery();
-      if (urlQuery && onSearch) {
-        onSearch(urlQuery);
-      }
-    }
-  }, [updateUrl, mode, onSearch, getInitialQuery]);
+  // Note: Initial URL query handling is done by parent component reading URL params
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     const handled = tagAutocomplete.handleKeyDown(e);
@@ -150,18 +136,14 @@ export function SearchForm({
     if (mode === "semantic") {
       // Navigate to search page for semantic search
       router.push(`/dashboard/search?q=${encodeURIComponent(query.trim())}`);
-    } else if (mode === "local" && onSearch) {
-      // Trigger local search immediately
-      onSearch(query.trim());
+    } else if (mode === "local") {
+      // Update URL for local search - parent component handles filtering
       updateURL(query.trim());
     }
   };
 
   const clearSearch = () => {
     setQuery("");
-    if (mode === "local" && onSearch) {
-      onSearch("");
-    }
     updateURL("");
   };
 

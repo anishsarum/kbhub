@@ -1,14 +1,6 @@
 import Link from "next/link";
 import { semanticSearch } from "@/app/lib/search-actions";
 
-type SearchResult = {
-  id: string;
-  content: string;
-  documentId: string;
-  document_title: string;
-  similarity_score: number;
-};
-
 type SearchResultsProps = {
   query: string;
 };
