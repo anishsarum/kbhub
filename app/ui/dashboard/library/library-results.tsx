@@ -1,4 +1,4 @@
-import { getUserDocuments } from "@/app/lib/actions";
+import { getUserDocuments } from "@/app/lib/document-actions";
 import { DocumentsGrid } from "@/app/ui/dashboard/library/document-grid";
 
 type LibraryResultsProps = {

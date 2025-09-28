@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
-import { createTextDocument } from "@/app/lib/actions";
+import { createTextDocument } from "@/app/lib/document-actions";
 import { DocumentForm } from "@/app/ui/dashboard/documents/document-form";
 
 export function CreateTextDocumentForm() {

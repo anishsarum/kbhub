@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useActionState } from "react";
-import { deleteDocument } from "@/app/lib/actions";
+import { deleteDocument } from "@/app/lib/document-actions";
 import { TrashIcon } from "@heroicons/react/24/outline";
 
 interface DeleteDocumentButtonProps {

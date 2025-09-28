@@ -2,22 +2,11 @@
 
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
-import { AuthError } from "next-auth";
-import bcrypt from "bcrypt";
 import { z } from "zod";
-import { auth, signIn } from "@/auth";
+import { auth } from "@/auth";
 import { prisma } from "./db";
 import { generateEmbedding, chunkText } from "./embeddings";
-import {
-  createDocumentChunk,
-  deleteDocumentChunks,
-  searchSimilarChunks,
-} from "./vector-db";
-
-const RegisterSchema = z.object({
-  email: z.email("Please enter a valid email address"),
-  password: z.string().min(6, "Password must be at least 6 characters"),
-});
+import { createDocumentChunk, deleteDocumentChunks } from "./vector-db";
 
 const CreateTextDocumentSchema = z.object({
   title: z.string().min(1, "Title is required").max(200, "Title too long"),
@@ -25,89 +14,6 @@ const CreateTextDocumentSchema = z.object({
   tags: z.string().optional(),
 });
 
-export async function authenticate(
-  prevState: string | undefined,
-  formData: FormData
-) {
-  try {
-    const email = formData.get("email") as string;
-    const password = formData.get("password") as string;
-
-    await signIn("credentials", {
-      email,
-      password,
-      redirect: false,
-    });
-
-    // If we get here, sign in was successful
-  } catch (error) {
-    if (error instanceof AuthError) {
-      switch (error.type) {
-        case "CredentialsSignin":
-          return "Invalid credentials.";
-        default:
-          return "Something went wrong.";
-      }
-    }
-    throw error;
-  }
-
-  redirect("/dashboard");
-}
-
-export async function registerUser(
-  prevState: string | undefined,
-  formData: FormData
-) {
-  try {
-    const email = formData.get("email") as string;
-    const password = formData.get("password") as string;
-
-    // Validate input
-    const validatedFields = RegisterSchema.safeParse({
-      email,
-      password,
-    });
-
-    if (!validatedFields.success) {
-      return "Please check your input and try again.";
-    }
-
-    // Check if user already exists
-    const existingUser = await prisma.user.findUnique({
-      where: { email },
-    });
-
-    if (existingUser) {
-      return "An account with this email already exists.";
-    }
-
-    // Hash password
-    const hashedPassword = await bcrypt.hash(password, 12);
-
-    // Create user
-    await prisma.user.create({
-      data: {
-        email,
-        password: hashedPassword,
-      },
-    });
-
-    // Auto sign in after registration
-    await signIn("credentials", {
-      email,
-      password,
-      redirect: false,
-    });
-  } catch (error) {
-    console.error("Registration error:", error);
-    return "Something went wrong during registration.";
-  }
-
-  redirect("/dashboard");
-}
-
-// Document Actions
 export async function createTextDocument(
   prevState: string | undefined,
   formData: FormData
@@ -194,106 +100,6 @@ export async function createTextDocument(
   }
 
   redirect("/dashboard/library");
-}
-
-export async function getUserDocuments() {
-  const session = await auth();
-
-  if (!session?.user?.email) {
-    throw new Error("You must be logged in to view documents.");
-  }
-
-  const user = await prisma.user.findUnique({
-    where: { email: session.user.email },
-    include: {
-      documents: {
-        orderBy: { createdAt: "desc" },
-        select: {
-          id: true,
-          title: true,
-          content: true,
-          type: true,
-          createdAt: true,
-          tags: true,
-        },
-      },
-    },
-  });
-
-  if (!user) {
-    throw new Error("User not found");
-  }
-
-  return user.documents;
-}
-
-export async function getUserTags() {
-  const session = await auth();
-
-  if (!session?.user?.email) {
-    throw new Error("You must be logged in to view tags.");
-  }
-
-  const user = await prisma.user.findUnique({
-    where: { email: session.user.email },
-    include: {
-      documents: {
-        select: {
-          tags: true,
-        },
-      },
-    },
-  });
-
-  if (!user) {
-    throw new Error("User not found");
-  }
-
-  // Extract all unique tags from all documents
-  const allTags = user.documents.flatMap((doc) => doc.tags);
-  const uniqueTags = [...new Set(allTags)].sort();
-
-  return uniqueTags;
-}
-
-export async function getDocumentById(id: string) {
-  const session = await auth();
-
-  if (!session?.user?.email) {
-    throw new Error("You must be logged in to view documents.");
-  }
-
-  const user = await prisma.user.findUnique({
-    where: { email: session.user.email },
-    select: { id: true },
-  });
-
-  if (!user) {
-    throw new Error("User not found");
-  }
-
-  const document = await prisma.document.findFirst({
-    where: {
-      id: id,
-      userId: user.id, // Ensure user can only access their own documents
-    },
-    select: {
-      id: true,
-      title: true,
-      description: true,
-      content: true,
-      type: true,
-      createdAt: true,
-      updatedAt: true,
-      tags: true,
-    },
-  });
-
-  if (!document) {
-    throw new Error("Document not found");
-  }
-
-  return document;
 }
 
 export async function updateTextDocument(
@@ -434,42 +240,102 @@ export async function deleteDocument(id: string) {
   redirect("/dashboard/library");
 }
 
-// Semantic Search Actions
-export async function semanticSearch(query: string) {
-  try {
-    const session = await auth();
-    if (!session?.user?.email) {
-      throw new Error("You must be logged in to search documents.");
-    }
+export async function getUserDocuments() {
+  const session = await auth();
 
-    // Get user from database
-    const user = await prisma.user.findUnique({
-      where: { email: session.user.email },
-      select: { id: true },
-    });
-
-    if (!user) {
-      throw new Error("User not found");
-    }
-
-    if (!query.trim()) {
-      return [];
-    }
-
-    // Generate embedding for the search query
-    const queryEmbedding = await generateEmbedding(query.trim());
-
-    // Search for similar document chunks
-    const results = await searchSimilarChunks(
-      queryEmbedding,
-      user.id,
-      15, // limit to 15 results for better demonstration
-      0.1 // similarity threshold (0.1 = 10% similar - very permissive for demo)
-    );
-
-    return results;
-  } catch (error) {
-    console.error("Semantic search error:", error);
-    throw new Error("Failed to search documents");
+  if (!session?.user?.email) {
+    throw new Error("You must be logged in to view documents.");
   }
+
+  const user = await prisma.user.findUnique({
+    where: { email: session.user.email },
+    include: {
+      documents: {
+        orderBy: { createdAt: "desc" },
+        select: {
+          id: true,
+          title: true,
+          content: true,
+          type: true,
+          createdAt: true,
+          tags: true,
+        },
+      },
+    },
+  });
+
+  if (!user) {
+    throw new Error("User not found");
+  }
+
+  return user.documents;
+}
+
+export async function getUserTags() {
+  const session = await auth();
+
+  if (!session?.user?.email) {
+    throw new Error("You must be logged in to view tags.");
+  }
+
+  const user = await prisma.user.findUnique({
+    where: { email: session.user.email },
+    include: {
+      documents: {
+        select: {
+          tags: true,
+        },
+      },
+    },
+  });
+
+  if (!user) {
+    throw new Error("User not found");
+  }
+
+  // Extract all unique tags from all documents
+  const allTags = user.documents.flatMap((doc) => doc.tags);
+  const uniqueTags = [...new Set(allTags)].sort();
+
+  return uniqueTags;
+}
+
+export async function getDocumentById(id: string) {
+  const session = await auth();
+
+  if (!session?.user?.email) {
+    throw new Error("You must be logged in to view documents.");
+  }
+
+  const user = await prisma.user.findUnique({
+    where: { email: session.user.email },
+    select: { id: true },
+  });
+
+  if (!user) {
+    throw new Error("User not found");
+  }
+
+  const document = await prisma.document.findFirst({
+    where: {
+      id: id,
+      userId: user.id, // Ensure user can only access their own documents
+    },
+    select: {
+      id: true,
+      title: true,
+      description: true,
+      content: true,
+      type: true,
+      createdAt: true,
+      updatedAt: true,
+      tags: true,
+    },
+  });
+
+  if (!document) {
+    throw new Error("Document not found");
+  }
+
+  return document;
 }

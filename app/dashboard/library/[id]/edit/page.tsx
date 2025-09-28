@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import { EditDocumentSkeleton } from "@/app/ui/skeletons";
 import { EditDocumentContent } from "@/app/ui/dashboard/documents/edit-document-content";
-import { getDocumentById } from "@/app/lib/actions";
+import { getDocumentById } from "@/app/lib/document-actions";
 
 type EditDocumentPageProps = {
   params: Promise<{

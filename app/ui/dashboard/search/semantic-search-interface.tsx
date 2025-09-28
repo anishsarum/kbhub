@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { semanticSearch } from "@/app/lib/actions";
+import { semanticSearch } from "@/app/lib/search-actions";
 import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 import { SearchResultsSkeleton } from "@/app/ui/skeletons";
 

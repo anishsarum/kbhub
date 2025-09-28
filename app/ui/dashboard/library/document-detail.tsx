@@ -7,7 +7,7 @@ import {
   PencilIcon,
   ArrowLeftIcon,
 } from "@heroicons/react/24/outline";
-import { getDocumentById } from "@/app/lib/actions";
+import { getDocumentById } from "@/app/lib/document-actions";
 import { DeleteDocumentButton } from "@/app/ui/dashboard/documents/delete-document-button";
 import Breadcrumbs from "@/app/ui/shared/breadcrumbs";
 import { formatDateTime } from "@/app/lib/utils";

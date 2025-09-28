@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
-import { updateTextDocument } from "@/app/lib/actions";
+import { updateTextDocument } from "@/app/lib/document-actions";
 import { DocumentForm } from "@/app/ui/dashboard/documents/document-form";
 
 type Document = {

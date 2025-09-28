@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import { DocumentDetailSkeleton } from "@/app/ui/skeletons";
 import { DocumentDetail } from "@/app/ui/dashboard/library/document-detail";
-import { getDocumentById } from "@/app/lib/actions";
+import { getDocumentById } from "@/app/lib/document-actions";
 
 type DocumentDetailPageProps = {
   params: Promise<{

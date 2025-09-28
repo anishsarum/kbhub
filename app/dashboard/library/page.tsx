@@ -4,7 +4,7 @@ import { LibraryResults } from "@/app/ui/dashboard/library/library-results";
 import { SearchForm } from "@/app/ui/dashboard/shared/search-form";
 import { LibraryPageSkeleton } from "@/app/ui/skeletons";
 import Breadcrumbs from "@/app/ui/shared/breadcrumbs";
-import { getUserTags } from "@/app/lib/actions";
+import { getUserTags } from "@/app/lib/document-actions";
 
 export const metadata: Metadata = {
   title: "Library",

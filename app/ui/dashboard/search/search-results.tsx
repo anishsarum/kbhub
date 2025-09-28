@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { semanticSearch } from "@/app/lib/actions";
+import { semanticSearch } from "@/app/lib/search-actions";
 
 type SearchResult = {
   id: string;

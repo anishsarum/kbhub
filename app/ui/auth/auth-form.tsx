@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useActionState } from "react";
 import { useSearchParams } from "next/navigation";
-import { authenticate, registerUser } from "@/app/lib/actions";
+import { authenticate, registerUser } from "@/app/lib/auth-actions";
 
 export default function AuthForm() {
   const searchParams = useSearchParams();
