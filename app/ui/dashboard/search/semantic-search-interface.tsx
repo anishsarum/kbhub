@@ -9,29 +9,29 @@ import { LoadingSpinner, ErrorIcon, SearchIcon } from "@/app/ui/shared/icons";
 import { Button } from "@/app/ui/shared/button";
 import type { SearchResult } from "@/app/lib/definitions";
 
-type SearchState = 'idle' | 'loading' | 'success' | 'error' | 'no-results';
+type SearchState = "idle" | "loading" | "success" | "error" | "no-results";
 
 export function SemanticSearchInterface() {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<SearchResult[]>([]);
-  const [searchState, setSearchState] = useState<SearchState>('idle');
+  const [searchState, setSearchState] = useState<SearchState>("idle");
   const [error, setError] = useState<string | null>(null);
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!query.trim()) return;
 
-    setSearchState('loading');
+    setSearchState("loading");
     setError(null);
 
     try {
       const searchResults = await semanticSearch(query);
       setResults(searchResults);
-      setSearchState(searchResults.length > 0 ? 'success' : 'no-results');
+      setSearchState(searchResults.length > 0 ? "success" : "no-results");
     } catch (error) {
       console.error("Search error:", error);
       setError("Failed to search documents. Please try again.");
-      setSearchState('error');
+      setSearchState("error");
     }
   };
 
@@ -58,17 +58,17 @@ export function SemanticSearchInterface() {
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="What would you like to find?"
                 className="w-full px-3 py-2 border border-slate-300 rounded-lg shadow-sm focus:ring-emerald-500 focus:border-emerald-500 text-sm placeholder-slate-400"
-                disabled={searchState === 'loading'}
+                disabled={searchState === "loading"}
               />
             </div>
           </div>
           <Button
             type="submit"
-            loading={searchState === 'loading'}
+            loading={searchState === "loading"}
             disabled={!query.trim()}
             size="lg"
           >
-            {searchState === 'loading' ? (
+            {searchState === "loading" ? (
               "Searching..."
             ) : (
               <>
@@ -81,7 +81,7 @@ export function SemanticSearchInterface() {
       </div>
 
       {/* Error Message */}
-      {searchState === 'error' && error && (
+      {searchState === "error" && error && (
         <div className="bg-red-50 border border-red-200 rounded-lg p-4">
           <div className="flex">
             <div className="flex-shrink-0">
@@ -98,10 +98,10 @@ export function SemanticSearchInterface() {
       )}
 
       {/* Loading Skeleton */}
-      {searchState === 'loading' && <SearchResultsSkeleton />}
+      {searchState === "loading" && <SearchResultsSkeleton />}
 
       {/* Results */}
-      {searchState === 'success' && (
+      {searchState === "success" && (
         <div className="space-y-4">
           <div className="border-b border-slate-200 pb-2">
             <h2 className="text-lg font-semibold text-slate-900">
@@ -139,7 +139,7 @@ export function SemanticSearchInterface() {
       )}
 
       {/* No Results */}
-      {searchState === 'no-results' && (
+      {searchState === "no-results" && (
         <div className="text-center py-12 bg-white border border-slate-200 rounded-lg">
           <SearchIcon className="mx-auto h-12 w-12 text-slate-400" />
           <div className="mt-4">

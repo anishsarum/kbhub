@@ -246,11 +246,7 @@ export function SearchForm({
         </div>
 
         {showButton && (
-          <Button
-            type="submit"
-            disabled={!query.trim()}
-            size="lg"
-          >
+          <Button type="submit" disabled={!query.trim()} size="lg">
             <MagnifyingGlassIcon className="w-4 h-4 mr-2" />
             Search
           </Button>

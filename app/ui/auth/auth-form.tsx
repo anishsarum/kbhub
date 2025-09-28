@@ -90,11 +90,7 @@ export default function AuthForm() {
           <input type="hidden" name="redirectTo" value="/dashboard" />
 
           {/* Submit Button */}
-          <Button
-            type="submit"
-            loading={isPending}
-            className="w-full"
-          >
+          <Button type="submit" loading={isPending} className="w-full">
             {isPending
               ? isLogin
                 ? "Signing in..."

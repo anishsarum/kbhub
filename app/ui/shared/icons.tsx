@@ -4,7 +4,9 @@ interface IconProps {
   className?: string;
 }
 
-export function LoadingSpinner({ className = "animate-spin h-4 w-4" }: IconProps) {
+export function LoadingSpinner({
+  className = "animate-spin h-4 w-4",
+}: IconProps) {
   return (
     <svg
       className={className}

@@ -34,9 +34,7 @@ export function DocumentGrid({
           Get started by creating your first document or uploading a PDF.
         </p>
         <Link href="/dashboard/documents">
-          <Button>
-            Create Document
-          </Button>
+          <Button>Create Document</Button>
         </Link>
       </div>
     );

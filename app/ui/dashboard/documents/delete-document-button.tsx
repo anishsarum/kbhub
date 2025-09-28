@@ -51,11 +51,7 @@ export function DeleteDocumentButton({
               Cancel
             </Button>
             <form action={formAction} className="inline">
-              <Button
-                type="submit"
-                loading={isPending}
-                variant="danger"
-              >
+              <Button type="submit" loading={isPending} variant="danger">
                 {isPending ? "Deleting..." : "Delete"}
               </Button>
             </form>
@@ -66,10 +62,7 @@ export function DeleteDocumentButton({
   }
 
   return (
-    <Button
-      onClick={() => setShowConfirmation(true)}
-      variant="danger-outline"
-    >
+    <Button onClick={() => setShowConfirmation(true)} variant="danger-outline">
       <TrashIcon className="h-4 w-4 mr-2" />
       Delete
     </Button>

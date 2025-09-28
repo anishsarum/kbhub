@@ -49,7 +49,6 @@ export async function deleteDocumentChunks(documentId: string) {
   `;
 }
 
-
 /**
  * Performs vector similarity search across document chunks
  * Uses PostgreSQL's pgvector extension for efficient cosine similarity

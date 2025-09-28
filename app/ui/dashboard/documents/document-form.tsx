@@ -48,14 +48,19 @@ export function DocumentForm({
   const validateTags = (tagsValue: string) => {
     const trimmed = tagsValue.trim();
     if (!trimmed) {
-      return { isValid: true, invalidTags: [], hasIncomplete: false, missingAt: [] };
+      return {
+        isValid: true,
+        invalidTags: [],
+        hasIncomplete: false,
+        missingAt: [],
+      };
     }
 
     // Split by spaces and filter out empty strings
-    const words = trimmed.split(/\s+/).filter(word => word.length > 0);
+    const words = trimmed.split(/\s+/).filter((word) => word.length > 0);
 
     // Find words that don't start with @
-    const missingAt = words.filter(word => !word.startsWith('@'));
+    const missingAt = words.filter((word) => !word.startsWith("@"));
 
     // Find all @tag patterns in the input
     const tagMatches = tagsValue.match(/@[\w-]+/g) || [];
@@ -68,7 +73,10 @@ export function DocumentForm({
     const incompleteMatches = tagsValue.match(/@\w+\s+\w/g) || [];
 
     return {
-      isValid: invalidTags.length === 0 && incompleteMatches.length === 0 && missingAt.length === 0,
+      isValid:
+        invalidTags.length === 0 &&
+        incompleteMatches.length === 0 &&
+        missingAt.length === 0,
       invalidTags,
       hasIncomplete: incompleteMatches.length > 0,
       missingAt,
@@ -78,7 +86,8 @@ export function DocumentForm({
   const tagValidation = validateTags(tags);
 
   // Form validation: check if all required fields are filled
-  const isFormValid = title.trim() !== "" && content.trim() !== "" && tagValidation.isValid;
+  const isFormValid =
+    title.trim() !== "" && content.trim() !== "" && tagValidation.isValid;
 
   // Initialize tag autocomplete with current input and available options
   const tagAutocomplete = useTagAutocomplete(tags, availableTags, (newTags) =>
@@ -228,7 +237,8 @@ export function DocumentForm({
             <div className="mt-2 text-sm text-red-600">
               {tagValidation.missingAt.length > 0 && (
                 <p>
-                  All tags must start with @. Missing @ for: {tagValidation.missingAt.join(", ")}
+                  All tags must start with @. Missing @ for:{" "}
+                  {tagValidation.missingAt.join(", ")}
                 </p>
               )}
               {tagValidation.hasIncomplete && (
