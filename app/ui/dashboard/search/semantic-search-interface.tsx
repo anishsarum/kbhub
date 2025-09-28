@@ -5,8 +5,9 @@ import Link from "next/link";
 import { semanticSearch } from "@/app/lib/search-actions";
 import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 import { SearchResultsSkeleton } from "@/app/ui/skeletons";
-import { LoadingSpinner, ErrorIcon, SearchIcon } from "@/app/ui/shared/icons";
+import { ErrorIcon, SearchIcon } from "@/app/ui/shared/icons";
 import { Button } from "@/app/ui/shared/button";
+import { Card } from "@/app/ui/shared/card";
 import type { SearchResult } from "@/app/lib/definitions";
 
 type SearchState = "idle" | "loading" | "success" | "error" | "no-results";
@@ -38,7 +39,7 @@ export function SemanticSearchInterface() {
   return (
     <div className="space-y-6">
       {/* Search Form */}
-      <div className="bg-white p-6 rounded-lg border border-slate-200 shadow-sm">
+      <Card variant="subtle">
         <form onSubmit={handleSearch} className="space-y-4">
           <div>
             <div className="flex items-center mb-2">
@@ -78,7 +79,7 @@ export function SemanticSearchInterface() {
             )}
           </Button>
         </form>
-      </div>
+      </Card>
 
       {/* Error Message */}
       {searchState === "error" && error && (

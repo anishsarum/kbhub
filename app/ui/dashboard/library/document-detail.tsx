@@ -12,6 +12,8 @@ import { DeleteDocumentButton } from "@/app/ui/dashboard/documents/delete-docume
 import Breadcrumbs from "@/app/ui/shared/breadcrumbs";
 import { formatDateTime } from "@/app/lib/utils";
 import { Button } from "@/app/ui/shared/button";
+import { Card } from "@/app/ui/shared/card";
+import { Tag } from "@/app/ui/shared/tag";
 
 interface DocumentDetailProps {
   id: string;
@@ -52,7 +54,7 @@ export async function DocumentDetail({ id }: DocumentDetailProps) {
       </div>
 
       {/* Document Header */}
-      <div className="bg-white rounded-lg shadow-md border border-gray-200 p-8 mb-6">
+      <Card padding="lg" className="mb-6">
         <div className="flex items-start justify-between mb-6">
           <div>
             <div className="flex items-center mb-2">
@@ -102,26 +104,23 @@ export async function DocumentDetail({ id }: DocumentDetailProps) {
           <div className="flex items-center flex-wrap gap-2 mb-6">
             <TagIcon className="h-4 w-4 text-gray-400" />
             {document.tags.map((tag: string, index: number) => (
-              <span
-                key={index}
-                className="inline-block bg-emerald-100 text-emerald-800 text-sm px-3 py-1 rounded-full"
-              >
+              <Tag key={index}>
                 {tag}
-              </span>
+              </Tag>
             ))}
           </div>
         )}
-      </div>
+      </Card>
 
       {/* Document Content */}
-      <div className="bg-white rounded-lg shadow-md border border-gray-200 p-8">
+      <Card padding="lg">
         <h3 className="text-lg font-semibold text-gray-900 mb-4">Content</h3>
         <div className="prose max-w-none">
           <div className="whitespace-pre-wrap text-gray-800 leading-relaxed">
             {document.content || "No content available"}
           </div>
         </div>
-      </div>
+      </Card>
     </div>
   );
 }

@@ -7,6 +7,7 @@ import {
 } from "@heroicons/react/24/outline";
 import { CreateTextDocumentForm } from "@/app/ui/dashboard/documents/create-text-document-form";
 import { UploadPDFPlaceholder } from "@/app/ui/dashboard/documents/pdf-upload-placeholder";
+import { Card } from "@/app/ui/shared/card";
 
 type TabType = "text" | "pdf";
 
@@ -50,12 +51,12 @@ export function DocumentCreationTabs({
       </div>
 
       {/* Content */}
-      <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-6">
+      <Card variant="subtle">
         {activeTab === "text" && (
           <CreateTextDocumentForm availableTags={availableTags} />
         )}
         {activeTab === "pdf" && <UploadPDFPlaceholder />}
-      </div>
+      </Card>
     </>
   );
 }

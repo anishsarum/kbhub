@@ -7,6 +7,7 @@ import {
 import { Document } from "@/app/lib/definitions";
 import { formatDate, truncateContent } from "@/app/lib/utils";
 import { Card } from "@/app/ui/shared/card";
+import { Tag } from "@/app/ui/shared/tag";
 
 interface DocumentCardProps {
   document: Document;
@@ -46,12 +47,9 @@ export function DocumentCard({ document }: DocumentCardProps) {
           <div className="flex items-center flex-wrap gap-2 mt-auto">
             <TagIcon className="h-4 w-4 text-gray-400" />
             {document.tags.slice(0, 3).map((tag: string, index: number) => (
-              <span
-                key={index}
-                className="inline-block bg-emerald-100 text-emerald-800 text-xs px-2 py-1 rounded-full"
-              >
+              <Tag key={index} size="sm">
                 {tag}
-              </span>
+              </Tag>
             ))}
             {document.tags.length > 3 && (
               <span className="text-xs text-gray-500">

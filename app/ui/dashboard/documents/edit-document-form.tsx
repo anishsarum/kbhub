@@ -3,16 +3,7 @@
 import { useActionState } from "react";
 import { updateTextDocument } from "@/app/lib/document-actions";
 import { DocumentForm } from "@/app/ui/dashboard/documents/document-form";
-
-type Document = {
-  id: string;
-  title: string;
-  content: string | null;
-  type: string;
-  createdAt: Date;
-  updatedAt: Date;
-  tags: string[];
-};
+import { Document } from "@/app/lib/definitions";
 
 interface EditDocumentFormProps {
   document: Document;

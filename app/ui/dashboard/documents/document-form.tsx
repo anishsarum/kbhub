@@ -5,16 +5,7 @@ import Link from "next/link";
 import { DocumentTextIcon } from "@heroicons/react/24/outline";
 import { useTagAutocomplete } from "@/app/ui/dashboard/shared/hooks/use-tag-autocomplete";
 import { Button } from "@/app/ui/shared/button";
-
-type Document = {
-  id: string;
-  title: string;
-  content: string | null;
-  type: string;
-  createdAt: Date;
-  updatedAt?: Date;
-  tags: string[];
-};
+import { Document } from "@/app/lib/definitions";
 
 interface DocumentFormProps {
   mode: "create" | "edit";
