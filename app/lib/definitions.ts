@@ -1,5 +1,3 @@
-// Shared type definitions for the application
-
 export interface Document {
   id: string;
   title: string;
@@ -18,7 +16,6 @@ export interface Breadcrumb {
 export interface User {
   id: string;
   email: string;
-  // Add other user properties as needed
 }
 
 export interface SearchResult {
