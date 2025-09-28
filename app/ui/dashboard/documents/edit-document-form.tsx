@@ -16,9 +16,13 @@ type Document = {
 
 interface EditDocumentFormProps {
   document: Document;
+  availableTags: string[];
 }
 
-export function EditDocumentForm({ document }: EditDocumentFormProps) {
+export function EditDocumentForm({
+  document,
+  availableTags,
+}: EditDocumentFormProps) {
   // Create bound action with document ID
   const updateDocumentWithId = updateTextDocument.bind(null, document.id);
   const [errorMessage, formAction, isPending] = useActionState(
@@ -33,6 +37,7 @@ export function EditDocumentForm({ document }: EditDocumentFormProps) {
       formAction={formAction}
       isPending={isPending}
       errorMessage={errorMessage}
+      availableTags={availableTags}
     />
   );
 }

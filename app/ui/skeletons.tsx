@@ -278,3 +278,51 @@ export function AuthFormSkeleton() {
     </div>
   );
 }
+
+// Document Creation Tabs Skeleton
+export function DocumentCreationSkeleton() {
+  return (
+    <div className="animate-pulse">
+      {/* Tabs */}
+      <div className="border-b border-slate-200">
+        <nav className="flex space-x-8">
+          <div className="py-2 px-1 border-b-2 border-emerald-500">
+            <div className="h-6 w-32 bg-gray-200 rounded"></div>
+          </div>
+          <div className="py-2 px-1">
+            <div className="h-6 w-28 bg-gray-200 rounded"></div>
+          </div>
+        </nav>
+      </div>
+
+      {/* Content */}
+      <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-6 mt-6">
+        <div className="space-y-6">
+          {/* Title field */}
+          <div>
+            <div className="h-4 w-12 bg-gray-200 rounded mb-2"></div>
+            <div className="h-10 w-full bg-gray-200 rounded"></div>
+          </div>
+
+          {/* Content field */}
+          <div>
+            <div className="h-4 w-16 bg-gray-200 rounded mb-2"></div>
+            <div className="h-32 w-full bg-gray-200 rounded"></div>
+          </div>
+
+          {/* Tags field */}
+          <div>
+            <div className="h-4 w-10 bg-gray-200 rounded mb-2"></div>
+            <div className="h-10 w-full bg-gray-200 rounded"></div>
+            <div className="h-3 w-48 bg-gray-200 rounded mt-1"></div>
+          </div>
+
+          {/* Button */}
+          <div className="flex justify-end">
+            <div className="h-10 w-24 bg-gray-200 rounded"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

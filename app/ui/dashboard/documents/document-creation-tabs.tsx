@@ -10,7 +10,13 @@ import { UploadPDFPlaceholder } from "@/app/ui/dashboard/documents/upload-pdf-pl
 
 type TabType = "text" | "pdf";
 
-export function DocumentCreationTabs() {
+interface DocumentCreationTabsProps {
+  availableTags: string[];
+}
+
+export function DocumentCreationTabs({
+  availableTags,
+}: DocumentCreationTabsProps) {
   const [activeTab, setActiveTab] = useState<TabType>("text");
 
   return (
@@ -45,7 +51,9 @@ export function DocumentCreationTabs() {
 
       {/* Content */}
       <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-6">
-        {activeTab === "text" && <CreateTextDocumentForm />}
+        {activeTab === "text" && (
+          <CreateTextDocumentForm availableTags={availableTags} />
+        )}
         {activeTab === "pdf" && <UploadPDFPlaceholder />}
       </div>
     </>

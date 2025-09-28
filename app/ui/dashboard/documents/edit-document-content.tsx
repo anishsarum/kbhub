@@ -7,9 +7,13 @@ import Breadcrumbs from "@/app/ui/shared/breadcrumbs";
 
 interface EditDocumentContentProps {
   id: string;
+  availableTags: string[];
 }
 
-export async function EditDocumentContent({ id }: EditDocumentContentProps) {
+export async function EditDocumentContent({
+  id,
+  availableTags,
+}: EditDocumentContentProps) {
   let document;
 
   try {
@@ -56,7 +60,7 @@ export async function EditDocumentContent({ id }: EditDocumentContentProps) {
       </div>
 
       {/* Content */}
-      <EditDocumentForm document={document} />
+      <EditDocumentForm document={document} availableTags={availableTags} />
     </div>
   );
 }

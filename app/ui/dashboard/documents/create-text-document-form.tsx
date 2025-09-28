@@ -4,7 +4,13 @@ import { useActionState } from "react";
 import { createTextDocument } from "@/app/lib/document-actions";
 import { DocumentForm } from "@/app/ui/dashboard/documents/document-form";
 
-export function CreateTextDocumentForm() {
+interface CreateTextDocumentFormProps {
+  availableTags: string[];
+}
+
+export function CreateTextDocumentForm({
+  availableTags,
+}: CreateTextDocumentFormProps) {
   const [errorMessage, formAction, isPending] = useActionState(
     createTextDocument,
     undefined
@@ -16,6 +22,7 @@ export function CreateTextDocumentForm() {
       formAction={formAction}
       isPending={isPending}
       errorMessage={errorMessage}
+      availableTags={availableTags}
     />
   );
 }

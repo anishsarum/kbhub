@@ -1,7 +1,9 @@
 "use client";
 
+import { useState, useRef } from "react";
 import Link from "next/link";
 import { DocumentTextIcon } from "@heroicons/react/24/outline";
+import { useTagAutocomplete } from "@/app/ui/dashboard/shared/hooks/useTagAutocomplete";
 
 type Document = {
   id: string;
@@ -19,6 +21,7 @@ interface DocumentFormProps {
   formAction: (formData: FormData) => void;
   isPending: boolean;
   errorMessage?: string;
+  availableTags?: string[];
 }
 
 export function DocumentForm({
@@ -27,8 +30,47 @@ export function DocumentForm({
   formAction,
   isPending,
   errorMessage,
+  availableTags = [],
 }: DocumentFormProps) {
   const isEdit = mode === "edit";
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [tags, setTags] = useState(() => {
+    // Convert existing tags to @notation format
+    if (document?.tags.length) {
+      return document.tags.map((tag) => `@${tag}`).join(" ");
+    }
+    return "";
+  });
+
+  // Tag autocomplete functionality
+  const tagAutocomplete = useTagAutocomplete(
+    tags,
+    availableTags,
+    inputRef,
+    (newTags) => setTags(newTags)
+  );
+
+  // Convert @notation tags to comma-separated format for server
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const form = event.currentTarget;
+    const formData = new FormData(form);
+
+    // Extract @tags and convert to comma-separated format
+    const tagsValue = tags;
+    const extractedTags = tagsValue
+      .split(/\s+/)
+      .filter((tag) => tag.startsWith("@"))
+      .map((tag) => tag.slice(1).trim())
+      .filter(Boolean)
+      .join(", ");
+
+    // Update the form data with converted tags
+    formData.set("tags", extractedTags);
+
+    // Call the original form action with the processed data
+    formAction(formData);
+  };
 
   return (
     <div
@@ -53,7 +95,7 @@ export function DocumentForm({
         </h2>
       )}
 
-      <form action={formAction} className="space-y-6">
+      <form className="space-y-6" onSubmit={handleSubmit}>
         {/* Title */}
         <div>
           <label
@@ -101,16 +143,43 @@ export function DocumentForm({
           >
             Tags
           </label>
-          <input
-            type="text"
-            id="tags"
-            name="tags"
-            defaultValue={document?.tags.join(", ") || ""}
-            className="w-full px-3 py-2 border border-slate-300 rounded-lg shadow-sm focus:ring-emerald-500 focus:border-emerald-500"
-            placeholder="Enter tags separated by commas..."
-          />
+          <div className="relative">
+            <input
+              ref={inputRef}
+              type="text"
+              id="tags"
+              name="tags"
+              value={tags}
+              onChange={(e) => setTags(e.target.value)}
+              onKeyDown={tagAutocomplete.handleKeyDown}
+              className="w-full px-3 py-2 border border-slate-300 rounded-lg shadow-sm focus:ring-emerald-500 focus:border-emerald-500"
+              placeholder="@research @notes @important"
+            />
+            {tagAutocomplete.showTagSuggestions && (
+              <div className="absolute z-10 w-full mt-1 bg-white border border-slate-200 rounded-lg shadow-lg max-h-48 overflow-y-auto">
+                {tagAutocomplete.tagSuggestions.map(
+                  (tag: string, index: number) => (
+                    <button
+                      key={tag}
+                      type="button"
+                      className={`w-full px-3 py-2 text-left hover:bg-slate-50 flex items-center gap-2 ${
+                        index === tagAutocomplete.selectedSuggestionIndex
+                          ? "bg-emerald-50 text-emerald-700"
+                          : "text-slate-700"
+                      }`}
+                      onClick={() => tagAutocomplete.selectTag(tag)}
+                    >
+                      <span className="text-slate-400">@ </span>
+                      {tag}
+                    </button>
+                  )
+                )}
+              </div>
+            )}
+          </div>
           <p className="text-xs text-slate-500 mt-1">
-            e.g., research, notes, important
+            Type @ followed by tag name to add tags. e.g., @research @notes
+            @important
           </p>
         </div>
 

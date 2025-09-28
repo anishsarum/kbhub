@@ -1,12 +1,17 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { DocumentCreationTabs } from "@/app/ui/dashboard/documents/document-creation-tabs";
+import { DocumentCreationSkeleton } from "@/app/ui/skeletons";
 import Breadcrumbs from "@/app/ui/shared/breadcrumbs";
+import { getUserTags } from "@/app/lib/document-actions";
 
 export const metadata: Metadata = {
   title: "Create Documents",
 };
 
-export default function DocumentsPage() {
+export default async function DocumentsPage() {
+  const availableTags = await getUserTags();
+
   return (
     <div className="space-y-6">
       <Breadcrumbs
@@ -23,7 +28,9 @@ export default function DocumentsPage() {
         </p>
       </div>
 
-      <DocumentCreationTabs />
+      <Suspense fallback={<DocumentCreationSkeleton />}>
+        <DocumentCreationTabs availableTags={availableTags} />
+      </Suspense>
     </div>
   );
 }
