@@ -34,7 +34,7 @@ export default async function LibraryPage({ searchParams }: LibraryPageProps) {
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900">Library</h1>
         <p className="text-gray-600 mt-2">
-          Browse and organize your document collection
+          Browse and organise your document collection
         </p>
       </div>
 

@@ -17,7 +17,7 @@ export const metadata: Metadata = {
     template: "%s | KBHub",
     default: "KBHub",
   },
-  description: "Organize, share, and discover knowledge with AI-powered search",
+  description: "Organise, share, and discover knowledge with AI-powered search",
 };
 
 export default function RootLayout({

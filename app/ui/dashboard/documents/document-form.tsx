@@ -33,6 +33,8 @@ export function DocumentForm({
   availableTags = [],
 }: DocumentFormProps) {
   const isEdit = mode === "edit";
+  const [title, setTitle] = useState(document?.title || "");
+  const [content, setContent] = useState(document?.content || "");
   const [tags, setTags] = useState(() => {
     // Convert existing tags to @notation format
     if (document?.tags.length) {
@@ -43,6 +45,17 @@ export function DocumentForm({
 
   // Tag validation: ensures @tags follow single-word format
   const validateTags = (tagsValue: string) => {
+    const trimmed = tagsValue.trim();
+    if (!trimmed) {
+      return { isValid: true, invalidTags: [], hasIncomplete: false, missingAt: [] };
+    }
+
+    // Split by spaces and filter out empty strings
+    const words = trimmed.split(/\s+/).filter(word => word.length > 0);
+
+    // Find words that don't start with @
+    const missingAt = words.filter(word => !word.startsWith('@'));
+
     // Find all @tag patterns in the input
     const tagMatches = tagsValue.match(/@[\w-]+/g) || [];
     const invalidTags = tagMatches.filter((tag) => {
@@ -54,13 +67,17 @@ export function DocumentForm({
     const incompleteMatches = tagsValue.match(/@\w+\s+\w/g) || [];
 
     return {
-      isValid: invalidTags.length === 0 && incompleteMatches.length === 0,
+      isValid: invalidTags.length === 0 && incompleteMatches.length === 0 && missingAt.length === 0,
       invalidTags,
       hasIncomplete: incompleteMatches.length > 0,
+      missingAt,
     };
   };
 
   const tagValidation = validateTags(tags);
+
+  // Form validation: check if all required fields are filled
+  const isFormValid = title.trim() !== "" && content.trim() !== "" && tagValidation.isValid;
 
   // Initialize tag autocomplete with current input and available options
   const tagAutocomplete = useTagAutocomplete(tags, availableTags, (newTags) =>
@@ -126,7 +143,8 @@ export function DocumentForm({
             name="title"
             required
             maxLength={200}
-            defaultValue={document?.title || ""}
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
             className="w-full px-3 py-2 border border-slate-300 rounded-lg shadow-sm focus:ring-emerald-500 focus:border-emerald-500"
             placeholder="Enter document title..."
           />
@@ -145,7 +163,8 @@ export function DocumentForm({
             name="content"
             required
             rows={12}
-            defaultValue={document?.content || ""}
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
             className="w-full px-3 py-2 border border-slate-300 rounded-lg shadow-sm focus:ring-emerald-500 focus:border-emerald-500"
             placeholder="Write your content here..."
           />
@@ -190,6 +209,7 @@ export function DocumentForm({
                           : "text-slate-700"
                       }`}
                       onClick={() => tagAutocomplete.selectTag(tag)}
+                      onMouseDown={(e) => e.preventDefault()}
                     >
                       <span className="text-slate-400">@ </span>
                       {tag}
@@ -205,6 +225,11 @@ export function DocumentForm({
           </p>
           {!tagValidation.isValid && (
             <div className="mt-2 text-sm text-red-600">
+              {tagValidation.missingAt.length > 0 && (
+                <p>
+                  All tags must start with @. Missing @ for: {tagValidation.missingAt.join(", ")}
+                </p>
+              )}
               {tagValidation.hasIncomplete && (
                 <p>
                   Tags must be single words. Separate tags with spaces, not
@@ -241,9 +266,9 @@ export function DocumentForm({
 
           <button
             type="submit"
-            disabled={isPending}
+            disabled={isPending || !isFormValid}
             className={`px-6 py-2 rounded-lg text-white font-medium ${
-              isPending
+              isPending || !isFormValid
                 ? "bg-emerald-400 cursor-not-allowed"
                 : "bg-emerald-600 hover:bg-emerald-700"
             } focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2`}

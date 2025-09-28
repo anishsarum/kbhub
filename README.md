@@ -100,7 +100,7 @@ A knowledge management system built with Next.js 15, React 19, and TypeScript. F
 
 - **Security**: Authentication, authorization, input validation
 - **Code Quality**: TypeScript throughout, modular architecture
-- **Maintainability**: Clear separation of concerns, organized file structure
+- **Maintainability**: Clear separation of concerns, organised file structure
 
 ## Setup Instructions
 
