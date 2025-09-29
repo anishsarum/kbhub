@@ -2,6 +2,10 @@
 
 A knowledge management system built with Next.js 15, React 19, and TypeScript. Features AI-powered semantic search using OpenAI embeddings and PostgreSQL vector extensions.
 
+## Architecture Overview
+
+![Architecture Diagram](./architecture-diagram.png)
+
 ## Project Requirements
 
 | Requirement              | Implementation                         | Enhancement                     |
