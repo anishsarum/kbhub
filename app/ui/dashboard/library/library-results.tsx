@@ -1,5 +1,5 @@
 import { getUserDocuments } from "@/app/lib/document-actions";
-import { DocumentsGrid } from "@/app/ui/dashboard/library/document-grid";
+import { DocumentGrid } from "@/app/ui/dashboard/library/document-grid";
 
 type LibraryResultsProps = {
   searchQuery: string;
@@ -9,5 +9,12 @@ export async function LibraryResults({ searchQuery }: LibraryResultsProps) {
   // This is a server component that uses await - Suspense will work properly
   const documents = await getUserDocuments();
 
-  return <DocumentsGrid documents={documents} searchQuery={searchQuery} />;
+  return (
+    <DocumentGrid
+      documents={documents}
+      searchQuery={searchQuery}
+      showEmptyState={true}
+      showSearchResults={true}
+    />
+  );
 }

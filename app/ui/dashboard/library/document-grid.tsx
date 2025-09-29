@@ -78,19 +78,3 @@ export function DocumentGrid({
   );
 }
 
-// Legacy component wrapper for backward compatibility
-interface DocumentsGridProps {
-  documents: Document[];
-  searchQuery: string;
-}
-
-export function DocumentsGrid({ documents, searchQuery }: DocumentsGridProps) {
-  return (
-    <DocumentGrid
-      documents={documents}
-      searchQuery={searchQuery}
-      showEmptyState={true}
-      showSearchResults={true}
-    />
-  );
-}
