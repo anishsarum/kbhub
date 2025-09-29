@@ -88,7 +88,6 @@ export function useTagAutocomplete(
     handleKeyDown,
     selectTag,
     handleFocus,
-    handleBlur,
-    updateCursorBasedSuggestions: () => {}, // Simplified - no longer needed
+    handleBlur
   };
 }

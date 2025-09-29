@@ -125,11 +125,6 @@ export function SearchForm({
     setQuery(e.target.value);
   };
 
-  const handleInputClick = () => {
-    if (mode === "local") {
-      tagAutocomplete.updateCursorBasedSuggestions();
-    }
-  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -177,8 +172,6 @@ export function SearchForm({
               type="text"
               value={query}
               onChange={handleInputChange}
-              onClick={handleInputClick}
-              onKeyUp={handleInputClick}
               onKeyDown={handleKeyDown}
               onFocus={tagAutocomplete.handleFocus}
               onBlur={tagAutocomplete.handleBlur}
