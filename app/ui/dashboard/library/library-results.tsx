@@ -6,7 +6,7 @@ type LibraryResultsProps = {
 };
 
 export async function LibraryResults({ searchQuery }: LibraryResultsProps) {
-  // This is a server component that uses await - Suspense will work properly
+  // This is a server component that uses await for suspense
   const documents = await getUserDocuments();
 
   return (
