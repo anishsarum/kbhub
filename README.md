@@ -21,6 +21,8 @@ A knowledge management system built with Next.js 15, React 19, and TypeScript. F
 
 ### Dual Search Architecture
 
+This approach provides the right tool for the user's intent: instant keyword/tag search for high-specificity lookups, and powerful semantic search for discovery and exploration.
+
 - **Semantic Mode**: Natural language queries with vector similarity matching
 - **Library Mode**: Tag-based filtering with autocomplete
 - **Real-time Updates**: Debounced search with URL state persistence
@@ -71,13 +73,20 @@ A knowledge management system built with Next.js 15, React 19, and TypeScript. F
 │   │   ├── documents/        # CRUD operations
 │   │   ├── library/          # Document management
 │   │   └── search/           # AI-powered search
-│   ├── lib/                  # Business logic
-│   │   ├── actions.ts        # Server actions
-│   │   ├── definitions.ts    # Shared type definitions
+│   ├── lib/                  # Core business logic & server actions
+│   │   ├── auth-actions.ts   # Authentication logic
+│   │   ├── document-actions.ts # Document CRUD operations
+│   │   ├── search-actions.ts   # AI search logic
+│   │   ├── definitions.ts    # Shared TypeScript types
 │   │   ├── embeddings.ts     # OpenAI integration
 │   │   ├── utils.ts          # Shared utility functions
-│   │   └── vector-db.ts      # Vector operations
-│   └── ui/                   # Reusable components
+│   │   └── vector-db.ts      # Vector database queries
+│   └── ui/                   # Reusable UI components
+│       ├── dashboard/        # Components specific to dashboard pages
+│       ├── shared/           # Reusable components (Buttons, Cards, etc.)
+│       │   └── hooks/        # Reusable client-side logic
+│       │       └── use-tag-autocomplete.ts
+│       └── ...               # (Other UI folders omitted for brevity)
 ├── prisma/                   # Database schema & migrations
 └── auth.config.ts           # Authentication setup
 ```
@@ -92,6 +101,7 @@ A knowledge management system built with Next.js 15, React 19, and TypeScript. F
 
 ### Architecture Patterns
 
+- **Custom Hooks for Logic Reusability**: Complex client-side logic, like the tag autocomplete feature, is extracted into custom hooks (e.g., `useTagAutocomplete`) to keep components clean and the logic reusable across the application.
 - **State Management**: URL persistence, real-time search, form state handling
 - **Performance**: Request debouncing, component optimization, efficient rendering
 - **User Experience**: Loading states, error boundaries, responsive design
@@ -131,7 +141,7 @@ Visit `http://localhost:3000` and start building your knowledge base!
 ### Creating Content
 
 1. Go to **Documents** and create your first note
-2. Add tags like `#tutorial`, `#reference`, or `#project-notes`
+2. Add tags like `@tutorial`, `@reference`, or `@project-notes`
 3. Write in markdown - it's all searchable
 
 ### Search Functionality
